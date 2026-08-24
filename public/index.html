@@ -84,7 +84,10 @@
       background: #f2f5f9;
       justify-content: center;
       align-items: center;
-      z-index: 600;
+      /* precisa ficar acima dos controles do Leaflet, que usam z-index 1000.
+         Com um valor menor, o mapa some mas os botoes de zoom continuam
+         flutuando por cima da tela de login. */
+      z-index: 1100;
     }
 
     .box {
@@ -115,6 +118,15 @@
 
     .btn-primary { background: #186da5; color: white; }
     .btn-secondary { background: #91acc7; color: white; }
+
+    /* saida da tela de login: sem isso o usuario que abre o login por engano
+       fica preso, porque so havia "Entrar" e "Criar conta" */
+    .btn-voltar-mapa {
+      background: none;
+      color: #555;
+      text-decoration: underline;
+      margin-top: 12px;
+    }
 
     .box .error {
       color: #c0392b;
@@ -485,6 +497,7 @@
 
       <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
       <button class="btn-secondary" onclick="openRegister()">Criar conta</button>
+      <button class="btn-voltar-mapa" onclick="voltarAoMapa()">Voltar ao mapa</button>
     </div>
   </div>
 
@@ -1304,6 +1317,23 @@
       document.getElementById("regError").style.display = "none";
       document.getElementById("registerScreen").style.display = "flex";
     }
+
+    // Fecha login/cadastro e devolve o usuário ao mapa. É o caminho de volta
+    // para quem abriu a tela sem querer, ou desistiu de entrar.
+    function voltarAoMapa() {
+      hideAllScreens();
+    }
+
+    // Esc faz a mesma coisa. Só age nas telas de login/cadastro: o editor de
+    // artigo fica de fora de propósito, para não descartar texto sem querer.
+    document.addEventListener("keydown", (evento) => {
+      if (evento.key !== "Escape") return;
+
+      const telasAbertas = ["loginScreen", "registerScreen"].filter(
+        (id) => document.getElementById(id).style.display === "flex"
+      );
+      if (telasAbertas.length > 0) voltarAoMapa();
+    });
 
     async function fazerLogin() {
       const email = document.getElementById("loginEmail").value.trim();
