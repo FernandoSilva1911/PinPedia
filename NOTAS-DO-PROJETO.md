@@ -46,6 +46,8 @@ middleware/
 api/
   index.js        ponto de entrada da Vercel
 colecoes.js       coleções temáticas e seus pisos de data (ex: /brasil)
+slug.js           gera o endereço público de cada conta e guarda os nomes
+                  reservados que ninguém pode tomar
 db.js             conexão com o Postgres, usando DATABASE_URL
 server.js         monta o Express, cors, estáticos, a rota /:id do RF009 e
                   as páginas das coleções. Exporta o app e só chama listen()
@@ -63,7 +65,9 @@ dados reais do Supabase, e `npm start`. A aplicação sobe em
 
 ### Modelo de dados
 
-São duas tabelas. `usuarios` guarda nome, e-mail e o hash da senha. `pins`
+São duas tabelas. `usuarios` guarda nome, e-mail, o hash da senha e a coluna
+`url`, que é o endereço público do mapa daquela conta e tem índice único.
+`pins`
 guarda título, data, coordenadas, o texto do artigo, o `autor_id` que amarra o
 registro a quem o escreveu e a coluna `colecao`, opcional, que indica a coleção
 temática a que ele pertence.
@@ -74,16 +78,29 @@ acrescentada antes de subir o código novo:
 ```sql
 ALTER TABLE pins ADD COLUMN IF NOT EXISTS colecao VARCHAR(40);
 CREATE INDEX IF NOT EXISTS idx_pins_colecao ON pins(colecao);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS url VARCHAR(40);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_url ON usuarios(url);
 ```
+
+Contas criadas antes dessa coluna ficam sem endereço e precisam ser
+preenchidas uma vez, aplicando a mesma regra de `slug.js` sobre o nome.
 
 Em banco criado do zero pelo `schema.sql` isso já vem junto.
 
 ## Decisões de projeto
 
-1. **URL pública do autor (RF009)** é `/<id>`, por exemplo `/5`. É um caminho
-   real, atendido pela rota Express `app.get(/^\/\d+$/, ...)`, que devolve o
-   `index.html`. O front lê `window.location.pathname` para saber que está em
-   modo leitura. Não usa mais query string.
+1. **Cada conta tem um endereço público**, no formato `/<url>`, como
+   `/fernando`. É o "/UrlDoUsuario" previsto no RF009. O endereço é gerado a
+   partir do nome no cadastro por `slug.js`, que remove acentos, troca espaços
+   por hífen e resolve conflitos acrescentando um número. Nomes que colidiriam
+   com rotas da API ou com páginas de coleção são recusados pela lista de
+   reservados, e endereço só de dígitos também, porque colidiria com a rota por
+   id. O id numérico continua funcionando, para não quebrar links antigos.
+
+   O caminho é real, não query string: o Express devolve o `index.html` e o
+   front lê `window.location.pathname` para descobrir o que carregar. Como um
+   caminho de um segmento pode ser uma coleção ou um autor, o front tenta
+   primeiro a coleção e, recebendo 404, tenta como autor.
 
 2. **Mídia no artigo** é marcação embutida no texto: `[img]url[/img]`,
    `[video]url[/video]` e `[audio]url[/audio]`, interpretadas por regex no
@@ -205,6 +222,9 @@ Tudo abaixo testado e funcionando.
 - Tela de login: os controles do mapa vazavam por cima dela, por conflito de
   camadas, e não havia como voltar ao mapa. Corrigido com `z-index` acima do
   Leaflet, botão "Voltar ao mapa" e tecla Esc.
+- Endereço público por conta, como `/fernando`, gerado do nome no cadastro.
+  Atende ao "/UrlDoUsuario" do RF009 e é o link do atalho "Meu mapa". O id
+  numérico continua válido.
 - Coleções temáticas e a página `/brasil`. Um pin marcado com uma coleção passa
   a aparecer apenas na página dela, que tem piso de data próprio e enquadra o
   mapa automaticamente nos registros. Fecha a pendência da rota `/Brasil`, que
@@ -332,6 +352,16 @@ período".
 escritos para exercitar a plataforma com um acervo real em vez de dados de teste
 sem sentido. Os critérios estão na seção Acervo de conteúdo. O objeto avaliado é
 a plataforma; o conteúdo é substituível e editável por qualquer autor cadastrado.
+
+**Como se compartilha um mapa?** Cada conta tem um endereço próprio, no
+formato `pinpedia.vercel.app/<nome>`, criado no cadastro a partir do nome. Ele
+abre o mapa daquele autor em modo somente leitura, que é o RF009. O atalho
+"Meu mapa", na barra superior, leva o usuário logado ao endereço dele.
+
+**O que acontece ao digitar um endereço que não existe?** A página carrega e o
+sistema avisa que o usuário não foi encontrado, com a mensagem prevista no
+fluxo A1 do RF009. O endereço não é validado no servidor antes de servir a
+página porque a resolução é feita pelo front, que consulta a API.
 
 **Quem pode escrever na coleção /brasil?** Apenas a conta indicada como `donoId`
 em `colecoes.js`. Qualquer outro usuário, mesmo logado, vê a página em modo
