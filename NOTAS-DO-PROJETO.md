@@ -147,6 +147,11 @@ Tudo abaixo testado e funcionando.
   RF006 impossível no celular. Agora há viewport, layout que não estoura em
   375px e toque longo de cerca de 600ms como equivalente do botão direito, com o
   mesmo controle de autoria. Arrastar o dedo cancela o toque longo.
+- Botão "Criar pin" fixo no canto inferior direito. Antes a criação só
+  existia pelo clique com o botão direito, que quase ninguém descobre sozinho
+  e que não existe em tela de toque. O botão liga um modo de posicionamento e
+  o clique seguinte no mapa define a coordenada. O clique direito continua
+  funcionando.
 - Tela de login: os controles do mapa vazavam por cima dela, por conflito de
   camadas, e não havia como voltar ao mapa. Corrigido com `z-index` acima do
   Leaflet, botão "Voltar ao mapa" e tecla Esc.
@@ -181,6 +186,15 @@ decisão: mudar o código ou corrigir o documento.
    ficava preso, já que só havia "Entrar" e "Criar conta". Segue o mesmo espírito
    do fluxo A4 do RF001, de cancelar o cadastro, e atende ao RNF04. A tecla Esc
    faz o mesmo. Acrescentar a linha ao Quadro 11.
+
+6. **RF006, fluxo básico.** O DERS descreve a criação de PIN apenas pelo
+   clique com o botão direito, que abre um menu de contexto. Foi acrescentado
+   um botão fixo "Criar pin" no canto inferior direito, que liga um modo de
+   posicionamento: o clique seguinte no mapa define a coordenada. O clique
+   direito continua funcionando, então nada do documento deixou de valer.
+   Motivo da mudança: menu de contexto é pouco descoberto por quem usa pela
+   primeira vez e não existe em tela de toque, o que prejudicava o RNF04 e a
+   restrição de acesso por celular. Acrescentar o botão ao fluxo do RF006.
 
 ## O que falta
 

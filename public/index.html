@@ -413,6 +413,51 @@
       color: white;
     }
 
+    /* BOTAO DE CRIAR PIN (RF006)
+       O clique com o botao direito continua funcionando, mas quase ninguem
+       descobre sozinho, e em tela de toque nem existe. Este botao e o
+       caminho visivel para a mesma acao. */
+    .criar-pin-box {
+      position: fixed;
+      right: 16px;
+      bottom: 28px; /* acima da atribuicao do OpenStreetMap */
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .btn-criar-pin {
+      background: #186da5;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .btn-criar-pin.cancelando { background: #999; }
+
+    .dica-posicionamento {
+      display: none;
+      background: rgba(31,79,138,0.95);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      max-width: 230px;
+      text-align: right;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    /* durante o posicionamento a mira deixa claro que o proximo clique
+       escolhe o lugar do pin */
+    .posicionando .leaflet-container { cursor: crosshair; }
+
     /* TOASTS, mensagens de erro/sucesso não-bloqueantes (RNF04) */
     .toast-container {
       position: fixed;
@@ -490,6 +535,14 @@
 
   <!-- MAPA -->
   <div id="map"></div>
+
+  <!-- BOTAO DE CRIAR PIN (RF006), alternativa visivel ao clique direito -->
+  <div id="criarPinBox" class="criar-pin-box">
+    <div id="dicaPosicionamento" class="dica-posicionamento">
+      Clique no mapa para escolher o local do pin.
+    </div>
+    <button id="btnCriarPin" class="btn-criar-pin" onclick="alternarModoPosicionamento()">Criar pin</button>
+  </div>
 
   <!-- TOASTS -->
   <div id="toastContainer" class="toast-container"></div>
@@ -724,6 +777,56 @@
         meuMapa.style.display = "inline";
       } else {
         meuMapa.style.display = "none";
+      }
+
+      atualizarBotaoCriarPin();
+    }
+
+    // ============================================================
+    // CRIAR PIN PELO BOTAO (RF006)
+    // O botao nao sabe onde o pin vai ficar, entao ele liga um modo de
+    // posicionamento: o proximo clique no mapa e que define a coordenada,
+    // do mesmo jeito que o clique com o botao direito ja fazia.
+    // ============================================================
+    let modoPosicionamento = false;
+
+    function atualizarBotaoCriarPin() {
+      const caixa = document.getElementById("criarPinBox");
+      if (!caixa) return;
+
+      // so quem esta logado cria pin (pre-condicao do RF006), e o modo
+      // leitura do RF009 nao permite escrita nenhuma
+      const podeCriar = loggedIn && !modoLeitura && !!map;
+      caixa.style.display = podeCriar ? "flex" : "none";
+      if (!podeCriar) sairModoPosicionamento();
+    }
+
+    function alternarModoPosicionamento() {
+      if (modoPosicionamento) {
+        sairModoPosicionamento();
+        return;
+      }
+
+      modoPosicionamento = true;
+      hideMenu();
+      document.body.classList.add("posicionando");
+      document.getElementById("dicaPosicionamento").style.display = "block";
+      const botao = document.getElementById("btnCriarPin");
+      botao.textContent = "Cancelar";
+      botao.classList.add("cancelando");
+    }
+
+    function sairModoPosicionamento() {
+      modoPosicionamento = false;
+      document.body.classList.remove("posicionando");
+
+      const dica = document.getElementById("dicaPosicionamento");
+      if (dica) dica.style.display = "none";
+
+      const botao = document.getElementById("btnCriarPin");
+      if (botao) {
+        botao.textContent = "Criar pin";
+        botao.classList.remove("cancelando");
       }
     }
 
@@ -1039,9 +1142,18 @@
       showMenu(e.containerPoint.x, e.containerPoint.y);
     });
 
-    if (map) map.on("click", () => {
+    if (map) map.on("click", (e) => {
       if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
       hideMenu();
+
+      // com o modo de posicionamento ligado, este clique escolhe o lugar do
+      // novo pin e abre o editor ja com a coordenada capturada
+      if (modoPosicionamento) {
+        contextLatLng = e.latlng;
+        contextPinId = null;
+        sairModoPosicionamento();
+        openEditor(null);
+      }
     });
 
     // ============================================================
@@ -1333,6 +1445,12 @@
     // artigo fica de fora de propósito, para não descartar texto sem querer.
     document.addEventListener("keydown", (evento) => {
       if (evento.key !== "Escape") return;
+
+      // desistir de posicionar o pin vem antes de fechar telas
+      if (modoPosicionamento) {
+        sairModoPosicionamento();
+        return;
+      }
 
       const telasAbertas = ["loginScreen", "registerScreen"].filter(
         (id) => document.getElementById(id).style.display === "flex"
