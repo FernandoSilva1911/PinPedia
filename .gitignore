@@ -13,3 +13,6 @@ node_modules/
 
 # material de referencia de terceiros, nao redistribuir
 *.pdf
+
+# versao antiga do DERS, mantida so localmente
+FernandoSilva_relatorio_DERS.docx
