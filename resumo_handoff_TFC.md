@@ -108,6 +108,11 @@ decisão: **ou muda o código, ou corrige o documento.**
    linha "Nome" no quadro.
 4. **RF006 (Quadro 16)** — erro de digitação no documento: a linha "Longitude" está
    escrita como "Latitude", aparecendo duas vezes.
+5. **RF002 (Quadro 11)** — a tela de login ganhou um botão **"Voltar ao mapa"**, que
+   o quadro não lista. Foi necessário: sem ele, quem abrisse o login por engano
+   ficava preso, já que só havia "Entrar" e "Criar conta". É o mesmo espírito do
+   A4 do RF001 ("Cancelar cadastro") e atende ao RNF04. A tecla Esc faz o mesmo.
+   Acrescentar a linha ao Quadro 11.
 
 ## O que falta
 
