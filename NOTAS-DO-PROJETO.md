@@ -137,9 +137,9 @@ Em banco criado do zero pelo `schema.sql` isso já vem junto.
    Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`,
    com o `donoId` de quem vai mantê-la, e marcar os pins existentes com o slug.
 
-10. **O mapa principal é particular de cada conta.**  exige sessão e
+10. **O mapa principal é particular de cada conta.** `GET /pins` exige sessão e
     devolve apenas os pins avulsos de quem está autenticado. Registros de outra
-    pessoa são vistos pela página dela, em  do RF009, e os de uma coleção
+    pessoa são vistos pela página dela, em `/<id>` do RF009, e os de uma coleção
     pela página da coleção. Visitante sem sessão vê o mapa vazio com um convite
     para entrar.
 
@@ -342,7 +342,7 @@ edita o registro de outra pessoa.
 **Por que o mapa principal aparece vazio?** Porque ele é particular: mostra
 apenas os registros da conta que está logada. Sem entrar, não há o que exibir, e
 a tela traz um convite para autenticar. O acervo público da plataforma está em
-, e o mapa de cada autor no endereço dele.
+`/brasil`, e o mapa de cada autor no endereço dele.
 
 **Dá para registrar um evento antes de Cristo?** Não. O `<input type="date">` do
 HTML não aceita data anterior à era cristã, então a plataforma cobre da era
