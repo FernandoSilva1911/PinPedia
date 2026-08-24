@@ -748,6 +748,12 @@
     let modoLeitura = false;
     let usuarioVisualizadoId = null;
 
+    // coleção temática: páginas como /brasil, que mostram só os pins
+    // marcados com aquele tema. Também são somente leitura.
+    let modoColecao = false;
+    let colecaoAtual = null;
+    let colecaoJaEnquadrada = false;
+
     // pequeno helper pra chamadas autenticadas
     function headersAutenticados() {
       return token
@@ -918,6 +924,10 @@
     }
 
     async function carregarPins() {
+      if (modoColecao) {
+        await carregarPinsDaColecao();
+        return;
+      }
       if (modoLeitura) {
         await carregarPinsDoUsuario();
         return;
@@ -949,8 +959,19 @@
     // ============================================================
     function verificarModoLeitura() {
       const partes = window.location.pathname.split("/").filter(Boolean);
-      const usuarioId = partes[0];
+      const primeiro = partes[0];
+      if (!primeiro) return;
 
+      // um caminho que não é número é tratado como coleção temática.
+      // Se ela não existir, o backend responde 404 e mostramos o aviso.
+      if (!/^\d+$/.test(primeiro)) {
+        modoColecao = true;
+        modoLeitura = true;
+        colecaoAtual = primeiro.toLowerCase();
+        return;
+      }
+
+      const usuarioId = primeiro;
       if (usuarioId && /^\d+$/.test(usuarioId)) {
         modoLeitura = true;
         usuarioVisualizadoId = usuarioId;
@@ -993,6 +1014,61 @@
       } catch (erro) {
         console.error(erro);
         mostrarToast("Não foi possível carregar os registros deste usuário. Verifique se o backend está rodando em " + API_BASE, "erro");
+      }
+    }
+
+    // ============================================================
+    // COLEÇÃO TEMÁTICA
+    // Páginas como /brasil. Mesmo mecanismo do RF009, mas recortando
+    // por tema em vez de por autor. Ver colecoes.js no back-end.
+    // ============================================================
+    async function carregarPinsDaColecao() {
+      const inicio = document.getElementById("dataInicial").value;
+      const fim = document.getElementById("dataFinal").value;
+
+      const params = new URLSearchParams();
+      if (inicio) params.append("dataInicial", inicio);
+      if (fim) params.append("dataFinal", fim);
+
+      try {
+        const resp = await fetch(
+          API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString()
+        );
+
+        if (resp.status === 404) {
+          const dados = await resp.json();
+          mostrarBannerLeitura(escaparHtml(dados.erro || "Coleção não encontrada."), true);
+          pins = [];
+          renderMarkers();
+          return;
+        }
+        if (!resp.ok) throw new Error("Falha ao buscar a coleção");
+
+        const dados = await resp.json();
+        pins = dados.pins;
+
+        // o piso de data da coleção vira limite do campo, para não ser
+        // possível pedir um período que a página não cobre
+        if (dados.colecao.dataMinima) {
+          document.getElementById("dataInicial").min = dados.colecao.dataMinima;
+          document.getElementById("dataFinal").min = dados.colecao.dataMinima;
+        }
+
+        const nome = escaparHtml(dados.colecao.nome);
+        const quantos = pins.length === 1 ? "1 registro" : pins.length + " registros";
+        mostrarBannerLeitura("Coleção <b>" + nome + "</b>, " + quantos, false);
+
+        renderMarkers();
+
+        // na primeira carga, enquadra o mapa nos pins da coleção
+        if (!colecaoJaEnquadrada && map && pins.length > 0) {
+          colecaoJaEnquadrada = true;
+          const limites = L.latLngBounds(pins.map((p) => [p.latitude, p.longitude]));
+          map.fitBounds(limites, { padding: [50, 50] });
+        }
+      } catch (erro) {
+        console.error(erro);
+        mostrarToast("Não foi possível carregar a coleção.", "erro");
       }
     }
 

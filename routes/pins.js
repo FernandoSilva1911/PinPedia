@@ -4,6 +4,7 @@
 const express = require("express");
 const db = require("../db");
 const { exigirAutenticacao } = require("../middleware/auth");
+const { COLECOES } = require("../colecoes");
 
 const router = express.Router();
 
@@ -115,6 +116,45 @@ router.get("/usuarios/:id/pins", async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao buscar pins do usuário." });
+  }
+});
+
+// ============================================================
+// GET /colecoes/:slug/pins   pins de uma coleção temática
+// Pública. É a rota que alimenta páginas como /brasil.
+// ============================================================
+router.get("/colecoes/:slug/pins", async (req, res) => {
+  const colecao = COLECOES[req.params.slug];
+  if (!colecao) {
+    return res.status(404).json({ erro: "Coleção não encontrada. Verifique o endereço digitado." });
+  }
+
+  let { dataInicial, dataFinal } = req.query;
+
+  // a coleção pode ter um piso de data próprio. Em vez de recusar um
+  // pedido abaixo dele, trazemos a data de volta para o piso.
+  if (colecao.dataMinima && (!dataInicial || dataInicial < colecao.dataMinima)) {
+    dataInicial = colecao.dataMinima;
+  }
+
+  try {
+    let sql = "SELECT id, titulo, data, latitude, longitude, autor_id FROM pins WHERE colecao = $1";
+    const valores = [req.params.slug];
+
+    valores.push(dataInicial);
+    sql += ` AND data >= $${valores.length}`;
+
+    if (dataFinal) {
+      valores.push(dataFinal);
+      sql += ` AND data <= $${valores.length}`;
+    }
+    sql += " ORDER BY data ASC";
+
+    const pins = await db.query(sql, valores);
+    res.json({ colecao: { slug: req.params.slug, ...colecao }, pins: pins.rows });
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao buscar a coleção." });
   }
 });
 

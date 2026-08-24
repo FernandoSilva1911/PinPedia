@@ -24,9 +24,13 @@ CREATE TABLE IF NOT EXISTS pins (
   longitude     DOUBLE PRECISION NOT NULL,
   texto         TEXT NOT NULL,
   autor_id      INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  -- identificador da coleção temática a que o pin pertence, quando houver.
+  -- Alimenta páginas como /brasil. Ver colecoes.js.
+  colecao       VARCHAR(40),
   criado_em     TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 -- índices para acelerar o filtro por data (RF005) e a busca por autor (RF009)
 CREATE INDEX IF NOT EXISTS idx_pins_data ON pins(data);
 CREATE INDEX IF NOT EXISTS idx_pins_autor_id ON pins(autor_id);
+CREATE INDEX IF NOT EXISTS idx_pins_colecao ON pins(colecao);

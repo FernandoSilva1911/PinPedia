@@ -8,6 +8,7 @@ const cors = require("cors");
 const db = require("./db");
 const rotasUsuarios = require("./routes/usuarios");
 const rotasPins = require("./routes/pins");
+const { COLECOES } = require("./colecoes");
 
 // Sem o JWT_SECRET não dá para assinar nem validar login. Sem esta checagem o
 // servidor sobe normalmente e só quebra na hora que alguém tenta entrar, com um
@@ -53,6 +54,16 @@ app.get("/teste-db", async (req, res) => {
       mensagem: "Não foi possível conectar ao banco. Confira a variável DATABASE_URL.",
     });
   }
+});
+
+// Páginas das coleções temáticas, como /brasil. Assim como a rota do
+// RF009, devolvem o mesmo index.html: é o frontend que lê o caminho e
+// decide o que carregar. Ficam depois das rotas da API para não
+// atropelar nenhuma delas.
+Object.keys(COLECOES).forEach((slug) => {
+  app.get("/" + slug, (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  });
 });
 
 // RF009, visualização de terceiros pela URL NomeDoSite/<id numérico>
