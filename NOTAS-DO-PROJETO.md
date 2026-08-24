@@ -217,9 +217,10 @@ entre historiadores, o texto diz que há.
 ### Autoria e critério de redação
 
 Os artigos estão registrados sob a conta de id 4, cujo nome de exibição é
-"lucas", e isso aparece em cada artigo na linha "registrado por". Se a
-demonstração para a banca pedir outra assinatura, basta alterar o nome dessa
-conta ou recriar os pins sob outra.
+"PinPedia", e é isso que aparece em cada artigo na linha "registrado por". A
+conta é institucional de propósito: o acervo é conteúdo da própria plataforma,
+e não a produção pessoal de um autor específico. Essa mesma conta é a dona da
+coleção, o que a torna a única que publica e edita dentro dela.
 
 O critério de redação foi:
 
