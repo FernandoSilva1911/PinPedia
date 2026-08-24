@@ -39,6 +39,7 @@ public/
 routes/
   usuarios.js     POST /usuarios (cadastro), POST /login
   pins.js         GET /pins, GET /pins/:id, GET /usuarios/:id/pins,
+                  GET /colecoes/:slug/pins,
                   POST /pins, PUT /pins/:id, DELETE /pins/:id
 middleware/
   auth.js         exigirAutenticacao, valida o JWT no header Authorization
@@ -46,8 +47,9 @@ api/
   index.js        ponto de entrada da Vercel
 colecoes.js       coleções temáticas e seus pisos de data (ex: /brasil)
 db.js             conexão com o Postgres, usando DATABASE_URL
-server.js         monta o Express, cors, estáticos e a rota /:id do RF009.
-                  Exporta o app e só chama listen() se rodado direto.
+server.js         monta o Express, cors, estáticos, a rota /:id do RF009 e
+                  as páginas das coleções. Exporta o app e só chama listen()
+                  se rodado direto.
 vercel.json       manda tudo para api/index.js e inclui public/ no pacote
 schema.sql        criação das tabelas usuarios e pins, com os índices
 package.json
@@ -58,6 +60,23 @@ package.json
 Para rodar: `npm install`, criar o `.env` a partir do `.env.example` com os
 dados reais do Supabase, e `npm start`. A aplicação sobe em
 <http://localhost:3000>.
+
+### Modelo de dados
+
+São duas tabelas. `usuarios` guarda nome, e-mail e o hash da senha. `pins`
+guarda título, data, coordenadas, o texto do artigo, o `autor_id` que amarra o
+registro a quem o escreveu e a coluna `colecao`, opcional, que indica a coleção
+temática a que ele pertence.
+
+Se o banco vier de uma versão anterior à das coleções, a coluna precisa ser
+acrescentada antes de subir o código novo:
+
+```sql
+ALTER TABLE pins ADD COLUMN IF NOT EXISTS colecao VARCHAR(40);
+CREATE INDEX IF NOT EXISTS idx_pins_colecao ON pins(colecao);
+```
+
+Em banco criado do zero pelo `schema.sql` isso já vem junto.
 
 ## Decisões de projeto
 
@@ -166,6 +185,10 @@ Tudo abaixo testado e funcionando.
 - Tela de login: os controles do mapa vazavam por cima dela, por conflito de
   camadas, e não havia como voltar ao mapa. Corrigido com `z-index` acima do
   Leaflet, botão "Voltar ao mapa" e tecla Esc.
+- Coleções temáticas e a página `/brasil`. Um pin marcado com uma coleção passa
+  a aparecer apenas na página dela, que tem piso de data próprio e enquadra o
+  mapa automaticamente nos registros. Fecha a pendência da rota `/Brasil`, que
+  estava listada para depois da banca.
 
 ## Acervo de conteúdo
 
@@ -181,6 +204,30 @@ historiografia acadêmica, entre eles a elevação do Brasil a Reino Unido em
 Estados africanos no tráfico atlântico, a construção republicana da figura de
 Tiradentes depois de 1889 e a organização estatal de Palmares. Onde há disputa
 entre historiadores, o texto diz que há.
+
+### Autoria e critério de redação
+
+Os artigos estão registrados sob a conta de id 4, cujo nome de exibição é
+"lucas", e isso aparece em cada artigo na linha "registrado por". Se a
+demonstração para a banca pedir outra assinatura, basta alterar o nome dessa
+conta ou recriar os pins sob outra.
+
+O critério de redação foi:
+
+- priorizar pontos com lastro na historiografia acadêmica e pouco tratados no
+  ensino básico;
+- citar o autor ou a obra quando a afirmação for de um historiador
+  identificável;
+- dizer explicitamente quando há disputa entre historiadores, em vez de
+  apresentar uma das posições como consenso;
+- não omitir o que é desfavorável à leitura escolhida, como a escravidão no
+  Império ou o colapso demográfico indígena.
+
+Duas teses populares ficaram de fora por não resistirem à checagem: a de que a
+Inglaterra teria provocado a Guerra do Paraguai, rebatida por Francisco
+Doratioto em Maldita Guerra, e a de que o Império brasileiro seria
+economicamente mais avançado que os Estados Unidos no século XIX, que os dados
+de ferrovia, industrialização e alfabetização não sustentam.
 
 ## Divergências entre o código e o DERS
 
@@ -222,6 +269,14 @@ decisão: mudar o código ou corrigir o documento.
    primeira vez e não existe em tela de toque, o que prejudicava o RNF04 e a
    restrição de acesso por celular. Acrescentar o botão ao fluxo do RF006.
 
+7. **RF003, fluxo básico, passo 2.** O DERS diz que a página principal renderiza
+   o mapa "exibindo os marcadores cadastrados", sem recorte. Com a introdução
+   das coleções temáticas, o mapa em `/` passou a exibir apenas os pins que não
+   pertencem a nenhuma coleção; os demais aparecem na página da sua coleção. A
+   rota `/brasil` também não consta do DERS, que só prevê a URL por autor do
+   RF009. Acrescentar as coleções ao RF003 e ao RF009, ou criar um requisito
+   próprio para elas.
+
 ## O que falta
 
 **RNF02.** Testar em outros navegadores (Chrome, Firefox e Edge) e, se possível,
@@ -241,6 +296,16 @@ render mais garantindo o deploy. Se sobrar tempo, é o próximo da fila.
 período".
 
 ## Perguntas prováveis da banca
+
+**De onde vêm os textos dos artigos publicados?** São conteúdo de demonstração,
+escritos para exercitar a plataforma com um acervo real em vez de dados de teste
+sem sentido. Os critérios estão na seção Acervo de conteúdo. O objeto avaliado é
+a plataforma; o conteúdo é substituível e editável por qualquer autor cadastrado.
+
+**Por que o mapa principal aparece vazio?** Porque todos os registros atuais
+pertencem à coleção `brasil` e, por decisão de projeto, pins de coleção só
+aparecem na página da própria coleção. Um pin criado pela interface nasce sem
+coleção e aparece normalmente no mapa principal.
 
 **Dá para registrar um evento antes de Cristo?** Não. O `<input type="date">` do
 HTML não aceita data anterior à era cristã, então a plataforma cobre da era
