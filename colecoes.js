@@ -13,6 +13,9 @@ const COLECOES = {
   brasil: {
     nome: "História do Brasil",
     descricao: "Do desembarque de Cabral ao fim do Império.",
+    // Coleção curada: só esta conta publica nela. Os demais usuários leem,
+    // e continuam livres para criar pins avulsos no mapa principal.
+    donoId: 4,
     // Piso de data exclusivo desta coleção: o filtro não pode ir mais para
     // trás do que a chegada de Cabral. Pedidos abaixo disso são trazidos de
     // volta para o piso, em vez de recusados.

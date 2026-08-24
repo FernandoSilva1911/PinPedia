@@ -168,18 +168,31 @@ router.get("/colecoes/:slug/pins", async (req, res) => {
 // nunca um valor mandado pelo cliente (evita alguém criar pin em nome de outro).
 // ============================================================
 router.post("/pins", exigirAutenticacao, async (req, res) => {
-  const { titulo, data, latitude, longitude, texto } = req.body;
+  const { titulo, data, latitude, longitude, texto, colecao } = req.body;
 
   if (!titulo || !data || latitude === undefined || longitude === undefined || !texto) {
     return res.status(400).json({ erro: "Preencha todos os campos obrigatórios." });
   }
 
+  // A coleção é opcional: pin sem coleção vai para o mapa principal. Quando
+  // vem preenchida, precisa existir e quem publica precisa ser o dono dela.
+  // Coleções são curadas, não abertas a qualquer cadastrado.
+  if (colecao) {
+    const definicao = COLECOES[colecao];
+    if (!definicao) {
+      return res.status(400).json({ erro: "Coleção inexistente." });
+    }
+    if (definicao.donoId !== req.usuario.id) {
+      return res.status(403).json({ erro: "Você não tem permissão para publicar nesta coleção." });
+    }
+  }
+
   try {
     const resultado = await db.query(
-      `INSERT INTO pins (titulo, data, latitude, longitude, texto, autor_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, titulo, data, latitude, longitude, texto, autor_id`,
-      [titulo, data, latitude, longitude, texto, req.usuario.id]
+      `INSERT INTO pins (titulo, data, latitude, longitude, texto, autor_id, colecao)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, titulo, data, latitude, longitude, texto, autor_id, colecao`,
+      [titulo, data, latitude, longitude, texto, req.usuario.id, colecao || null]
     );
 
     res.status(201).json(resultado.rows[0]);

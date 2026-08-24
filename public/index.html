@@ -1022,6 +1022,15 @@
     // Páginas como /brasil. Mesmo mecanismo do RF009, mas recortando
     // por tema em vez de por autor. Ver colecoes.js no back-end.
     // ============================================================
+    // Numa coleção curada, o dono trabalha normalmente: cria, edita e exclui.
+    // Para todos os outros a página é somente leitura. Como isso depende de
+    // quem está logado, é reavaliado a cada carregamento.
+    function avaliarPermissaoDaColecao(donoId) {
+      const souDono = loggedIn && usuarioAtual && donoId != null && usuarioAtual.id === donoId;
+      modoLeitura = !souDono;
+      atualizarBotaoCriarPin();
+    }
+
     async function carregarPinsDaColecao() {
       const inicio = document.getElementById("dataInicial").value;
       const fim = document.getElementById("dataFinal").value;
@@ -1053,6 +1062,9 @@
           document.getElementById("dataInicial").min = dados.colecao.dataMinima;
           document.getElementById("dataFinal").min = dados.colecao.dataMinima;
         }
+
+        // quem é dono da coleção edita nela; os demais só leem
+        avaliarPermissaoDaColecao(dados.colecao.donoId);
 
         const nome = escaparHtml(dados.colecao.nome);
         const quantos = pins.length === 1 ? "1 registro" : pins.length + " registros";
@@ -1370,14 +1382,19 @@
             mostrarToast("Coordenada não capturada. Clique com o botão direito no mapa para criar um pin.", "erro");
             return;
           }
+          const novoPin = {
+            titulo, data, texto,
+            latitude: contextLatLng.lat,
+            longitude: contextLatLng.lng,
+          };
+
+          // criado a partir da página de uma coleção, o pin já nasce dentro dela
+          if (modoColecao && colecaoAtual) novoPin.colecao = colecaoAtual;
+
           resp = await fetch(`${API_BASE}/pins`, {
             method: "POST",
             headers: headersAutenticados(),
-            body: JSON.stringify({
-              titulo, data, texto,
-              latitude: contextLatLng.lat,
-              longitude: contextLatLng.lng,
-            }),
+            body: JSON.stringify(novoPin),
           });
         } else {
           resp = await fetch(`${API_BASE}/pins/${editingPinId}`, {

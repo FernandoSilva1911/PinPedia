@@ -124,9 +124,18 @@ Em banco criado do zero pelo `schema.sql` isso já vem junto.
    22 de abril de 1500. O mapa geral em `/` mostra apenas os pins avulsos: quem
    pertence a uma coleção aparece só na página dela.
 
-   Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`
-   e marcar os pins com o slug correspondente. Não existe ainda interface para
-   fazer essa marcação: hoje é feita direto no banco.
+   Cada coleção tem um dono, indicado por `donoId` em `colecoes.js`. Só o dono
+   publica, edita e exclui dentro dela: para ele a página funciona como o mapa
+   principal, com botão de criar e menu de contexto. Para todos os demais,
+   inclusive usuários logados, a página é somente leitura. O `POST /pins` aceita
+   um campo `colecao` opcional e recusa com 403 quem não for o dono, e com 400
+   uma coleção que não exista.
+
+   Pin criado a partir da página de uma coleção já nasce dentro dela. Pin criado
+   no mapa principal nasce avulso.
+
+   Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`,
+   com o `donoId` de quem vai mantê-la, e marcar os pins existentes com o slug.
 
 ## Verificação em produção
 
@@ -301,6 +310,12 @@ período".
 escritos para exercitar a plataforma com um acervo real em vez de dados de teste
 sem sentido. Os critérios estão na seção Acervo de conteúdo. O objeto avaliado é
 a plataforma; o conteúdo é substituível e editável por qualquer autor cadastrado.
+
+**Quem pode escrever na coleção /brasil?** Apenas a conta indicada como `donoId`
+em `colecoes.js`. Qualquer outro usuário, mesmo logado, vê a página em modo
+somente leitura, e recebe 403 se tentar publicar na coleção pela API. A regra de
+propriedade por pin do RF007 e do RF008 continua valendo por cima disso: ninguém
+edita o registro de outra pessoa.
 
 **Por que o mapa principal aparece vazio?** Porque todos os registros atuais
 pertencem à coleção `brasil` e, por decisão de projeto, pins de coleção só
