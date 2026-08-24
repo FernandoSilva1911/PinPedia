@@ -1,4 +1,4 @@
-// middleware/auth.js — protege rotas que exigem usuário logado
+// middleware/auth.js: protege rotas que exigem usuário logado
 // (vai ser usado depois nas rotas de criar/editar/excluir pin).
 
 const jwt = require("jsonwebtoken");
@@ -14,7 +14,7 @@ function exigirAutenticacao(req, res, next) {
 
   try {
     const dados = jwt.verify(token, process.env.JWT_SECRET);
-    req.usuario = dados; // { id, nome, email } — disponível nas rotas seguintes
+    req.usuario = dados; // { id, nome, email }, disponível nas rotas seguintes
     next();
   } catch (erro) {
     return res.status(401).json({ erro: "Token inválido ou expirado." });

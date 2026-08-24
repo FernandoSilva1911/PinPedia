@@ -6,7 +6,7 @@
        largo e depois encolhe tudo. A restrição obrigatória do projeto pede
        acesso por Desktop E Mobile. -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Registros Históricos Geolocalizados — Protótipo</title>
+  <title>PinPedia</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
@@ -260,6 +260,13 @@
       margin-top: 4px;
     }
 
+    /* quem escreveu o artigo (RF004) */
+    .autor-artigo {
+      font-size: 13px;
+      color: #666;
+      margin-top: 2px;
+    }
+
     /* BANNER MODO LEITURA (RF009) */
     .readonly-banner {
       display: none;
@@ -282,7 +289,7 @@
       white-space: nowrap;
     }
 
-    /* ERRO DE CARREGAMENTO DO MAPA (RF003 — fluxo alternativo A1) */
+    /* ERRO DE CARREGAMENTO DO MAPA (RF003, fluxo alternativo A1) */
     .map-error-screen {
       display: none;
       position: fixed;
@@ -329,7 +336,7 @@
       text-align: center;
     }
 
-    /* TELAS PEQUENAS — a barra de cima precisa caber num celular sem
+    /* TELAS PEQUENAS, a barra de cima precisa caber num celular sem
        estourar a largura. Mantemos a mesma altura de 60px, porque o mapa e
        as telas de login se posicionam a partir dela. */
     @media (max-width: 600px) {
@@ -406,7 +413,7 @@
       color: white;
     }
 
-    /* TOASTS — mensagens de erro/sucesso não-bloqueantes (RNF04) */
+    /* TOASTS, mensagens de erro/sucesso não-bloqueantes (RNF04) */
     .toast-container {
       position: fixed;
       top: 70px;
@@ -583,7 +590,7 @@
 
   <script>
     // ============================================================
-    // SEGURANÇA — escapar o que foi escrito por usuários
+    // SEGURANÇA: escapar o que foi escrito por usuários
     // Título, texto do artigo e nome do autor são digitados por qualquer
     // pessoa cadastrada. Se esse conteúdo for jogado direto no innerHTML,
     // alguém pode salvar uma tag como <img src=x onerror="..."> que passaria
@@ -615,7 +622,7 @@
     }
 
     // ============================================================
-    // TOASTS — mensagens de erro/sucesso não-bloqueantes (RNF04)
+    // TOASTS: mensagens de erro/sucesso não-bloqueantes (RNF04)
     // ============================================================
     function mostrarToast(mensagem, tipo) {
       const container = document.getElementById("toastContainer");
@@ -665,10 +672,10 @@
 
     // se o Leaflet não carregou (onerror já tratou isso), não executa o resto
     if (typeof L === "undefined") {
-      throw new Error("Leaflet não disponível — mapa não pode ser inicializado.");
+      throw new Error("Leaflet não disponível. O mapa não pode ser inicializado.");
     }
 
-    let token = null;        // token JWT do usuário logado (só em memória — some ao recarregar a página)
+    let token = null;        // token JWT do usuário logado (só em memória, some ao recarregar a página)
     let usuarioAtual = null; // { id, nome, email }
     let loggedIn = false;
 
@@ -684,7 +691,7 @@
     // abrir por cima do menu que o toque longo acabou de abrir
     let toqueLongoDisparou = false;
 
-    // modo leitura (RF009) — visualização de terceiros via ?usuario=ID
+    // modo leitura (RF009): visualização de terceiros pela URL /<id do autor>
     let modoLeitura = false;
     let usuarioVisualizadoId = null;
 
@@ -760,7 +767,7 @@
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // tile isolado falhou (ex: internet instável) — avisa sem travar o mapa
+      // tile isolado falhou (ex: internet instável), avisa sem travar o mapa
       let avisoTileMostrado = false;
       map.on('tileerror', () => {
         if (avisoTileMostrado) return;
@@ -832,7 +839,7 @@
     }
 
     // ============================================================
-    // MODO LEITURA — VISUALIZAÇÃO DE TERCEIROS (RF009)
+    // MODO LEITURA: VISUALIZAÇÃO DE TERCEIROS (RF009)
     // Acesso via NomeDoSite/<id>, ex: http://localhost:3000/1
     // Exige que o frontend esteja sendo servido pelo Express (pasta
     // public/), não mais aberto direto como arquivo local.
@@ -865,7 +872,7 @@
       try {
         const resp = await fetch(`${API_BASE}/usuarios/${usuarioVisualizadoId}/pins?${params.toString()}`);
 
-        // A1 do RF009 — usuário não encontrado
+        // A1 do RF009: usuário não encontrado
         if (resp.status === 404) {
           const dados = await resp.json();
           mostrarBannerLeitura(escaparHtml(dados.erro || "Usuário não encontrado. Verifique o endereço digitado."), true);
@@ -878,7 +885,7 @@
 
         const dados = await resp.json();
         pins = dados.pins;
-        mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> — modo somente leitura.`, false);
+        mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
         renderMarkers();
       } catch (erro) {
         console.error(erro);
@@ -894,7 +901,7 @@
     }
 
     function renderMarkers() {
-      if (!map) return; // mapa não carregou — nada a desenhar
+      if (!map) return; // mapa não carregou, nada a desenhar
 
       // remove marcadores atuais
       Object.values(markers).forEach(m => map.removeLayer(m));
@@ -942,10 +949,10 @@
     }
 
     // ============================================================
-    // TOQUE LONGO — equivalente do clique direito no celular
+    // TOQUE LONGO: equivalente do clique direito no celular
     // Em tela de toque não existe botão direito, então sem isso o RF006
     // (criar pin) e o RF007/RF008 (editar/excluir) seriam impossíveis no
-    // celular — o que contraria a restrição de acesso por Desktop e Mobile.
+    // celular: o que contraria a restrição de acesso por Desktop e Mobile.
     // ============================================================
     function abrirMenuPorToqueLongo(x, y, iconeDoMarcador) {
       if (iconeDoMarcador) {
@@ -1115,7 +1122,7 @@
         atualizarPreview();
         editorOverlay.style.display = "flex";
       } else {
-        // editando pin existente — busca o texto completo na API
+        // editando pin existente: busca o texto completo na API
         try {
           const resp = await fetch(`${API_BASE}/pins/${pinId}`);
           if (!resp.ok) throw new Error("Pin não encontrado");
@@ -1170,7 +1177,7 @@
         let resp;
 
         if (editingPinId === null) {
-          // criação — usa a coordenada capturada no clique direito
+          // criação: usa a coordenada capturada no clique direito
           if (!contextLatLng) {
             mostrarToast("Coordenada não capturada. Clique com o botão direito no mapa para criar um pin.", "erro");
             return;
@@ -1257,14 +1264,12 @@
 
         document.getElementById("viewerBody").innerHTML = `
           <h2 style="color:#186da5;">${escaparHtml(pin.titulo)}</h2>
-          <small>
-            ${formatarData(pin.data)}
-            ${pin.autor_nome ? ` &middot; registrado por <b>${escaparHtml(pin.autor_nome)}</b>` : ""}
-          </small>
+          <small>${formatarData(pin.data)}</small>
+          ${pin.autor_nome ? `<div class="autor-artigo">registrado por <b>${escaparHtml(pin.autor_nome)}</b></div>` : ""}
           <div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>
         `;
 
-        // RF007 passo 2 — o sistema identifica que o leitor é o proprietário
+        // RF007 passo 2: o sistema identifica que o leitor é o proprietário
         // do pin e só então exibe o botão "Editar".
         const podeEditar = !modoLeitura && loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
         document.getElementById("btnEditarViewer").style.display = podeEditar ? "inline-block" : "none";
@@ -1281,7 +1286,7 @@
       viewingPinId = null;
     }
 
-    // RF007 passo 3 — do artigo aberto direto para o formulário de edição
+    // RF007 passo 3: do artigo aberto direto para o formulário de edição
     function editarPinDoViewer() {
       const pinId = viewingPinId;
       closeViewer();
@@ -1289,7 +1294,7 @@
     }
 
     // ============================================================
-    // LOGIN / CADASTRO (front-end apenas — simulação, sem API ainda)
+    // LOGIN E CADASTRO (RF001 e RF002)
     // ============================================================
     function toggleAuth() {
       if (loggedIn) {

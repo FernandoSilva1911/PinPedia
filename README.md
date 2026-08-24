@@ -7,22 +7,22 @@ interativo, cada um com data, coordenadas e um artigo autoral. O acervo pode ser
 navegado pelo mapa e filtrado por período, e cada autor tem uma página pública
 com apenas os seus registros.
 
-Trabalho Final de Curso em Engenharia de Software — Universidade de Rio Verde
+Trabalho Final de Curso em Engenharia de Software na Universidade de Rio Verde
 (UniRV). Autor: Fernando Silva Cruvinel. Orientador: Prof. Esp. Julio César
 Gomes Rodrigues.
 
-**No ar:** <https://pinpedia.vercel.app>
+No ar em <https://pinpedia.vercel.app>
 
 ## Tecnologias
 
 | Camada | Escolha |
 |---|---|
-| Back-end | Node.js + Express (MVC simplificado) |
+| Back-end | Node.js com Express, em MVC simplificado |
 | Banco | PostgreSQL (Supabase) |
-| Autenticação | JWT + bcryptjs |
-| Front-end | HTML5, CSS3, JavaScript puro |
-| Mapa | Leaflet.js + OpenStreetMap |
-| Hospedagem | Vercel (função serverless) |
+| Autenticação | JWT e bcryptjs |
+| Front-end | HTML5, CSS3 e JavaScript puro |
+| Mapa | Leaflet.js com OpenStreetMap |
+| Hospedagem | Vercel, como função serverless |
 
 Todas as ferramentas são de código aberto e sem custo de licença.
 
@@ -59,13 +59,14 @@ schema.sql          criação das tabelas
 
 ## Funcionalidades
 
-Cadastro e login; mapa interativo com navegação e zoom; criação, edição e
-exclusão de PINs restritas ao autor; artigos com imagens, áudios e vídeos
-embutidos por marcação; filtro por intervalo de datas; e página pública por
-autor em `/<id>`, em modo somente leitura.
+Cadastro e login. Mapa interativo com navegação e zoom. Criação, edição e
+exclusão de PINs restritas ao autor. Artigos com imagens, áudios e vídeos
+embutidos por marcação no texto. Filtro por intervalo de datas. Página pública
+por autor em `/<id>`, em modo somente leitura.
 
 ## Documentação
 
-- `DEPLOY.md` — como o ambiente de produção foi montado e como republicar
-- `resumo_handoff_TFC.md` — decisões de projeto, estado atual e pendências
-- `FernandoSilva_relatorio_DERS2.docx` — documento de requisitos (DERS)
+O arquivo `DEPLOY.md` descreve como o ambiente de produção foi montado e como
+republicar. O `NOTAS-DO-PROJETO.md` reúne as decisões técnicas, o estado atual e
+as pendências. O documento de requisitos está em
+`FernandoSilva_relatorio_DERS2.docx`.

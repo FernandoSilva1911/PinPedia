@@ -1,4 +1,4 @@
-// db.js — ponto único de conexão com o PostgreSQL.
+// db.js: ponto único de conexão com o PostgreSQL.
 // Qualquer arquivo do backend que precisar falar com o banco importa
 // este módulo em vez de criar sua própria conexão.
 
@@ -36,9 +36,9 @@ const pool = process.env.DATABASE_URL
       password: process.env.DB_PASSWORD,
     });
 
-// "Pool" mantém várias conexões abertas e reaproveitáveis — é o jeito
+// "Pool" mantém várias conexões abertas e reaproveitáveis. É o jeito
 // recomendado de usar o pg em uma API, em vez de abrir uma conexão nova
-// a cada requisição (isso seria lento e não escalaria — RNF05).
+// a cada requisição (isso seria lento e não escalaria, RNF05).
 
 module.exports = {
   // uso: const { rows } = await db.query('SELECT * FROM pins WHERE id = $1', [id]);

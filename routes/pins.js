@@ -1,4 +1,4 @@
-// routes/pins.js — RF003 (dados p/ o mapa), RF005 (filtro por data),
+// routes/pins.js: RF003 (dados p/ o mapa), RF005 (filtro por data),
 // RF006 (criar), RF007 (editar), RF008 (excluir), RF009 (visualização de terceiros)
 
 const express = require("express");
@@ -8,8 +8,8 @@ const { exigirAutenticacao } = require("../middleware/auth");
 const router = express.Router();
 
 // ============================================================
-// GET /pins — lista pins, com filtro opcional de data (RF003 + RF005)
-// Pública — qualquer visitante pode ver o mapa.
+// GET /pins: lista pins, com filtro opcional de data (RF003 + RF005)
+// Pública: qualquer visitante pode ver o mapa.
 // Exemplo: GET /pins?dataInicial=1500-01-01&dataFinal=1600-01-01
 // ============================================================
 router.get("/pins", async (req, res) => {
@@ -42,8 +42,8 @@ router.get("/pins", async (req, res) => {
 });
 
 // ============================================================
-// GET /pins/:id — artigo completo de um pin (RF004)
-// Pública — leitura livre pra qualquer usuário, logado ou não.
+// GET /pins/:id   artigo completo de um pin (RF004)
+// Pública: leitura livre pra qualquer usuário, logado ou não.
 // ============================================================
 router.get("/pins/:id", async (req, res) => {
   if (!/^\d+$/.test(req.params.id)) {
@@ -75,8 +75,8 @@ router.get("/pins/:id", async (req, res) => {
 });
 
 // ============================================================
-// GET /usuarios/:id/pins — pins de um autor específico (RF009)
-// Pública — é a rota usada pela URL "/UrlDoUsuario" do frontend.
+// GET /usuarios/:id/pins   pins de um autor específico (RF009)
+// Pública: é a rota usada pela URL "/UrlDoUsuario" do frontend.
 // Aceita o mesmo filtro de data do GET /pins, porque o Quadro 19 do DERS
 // prevê os campos "Data Inicial" e "Data Final" também nessa tela.
 // ============================================================
@@ -84,7 +84,7 @@ router.get("/usuarios/:id/pins", async (req, res) => {
   const { dataInicial, dataFinal } = req.query;
 
   // o id vem da URL digitada pelo usuário; se não for número nem consultamos
-  // o banco — é o mesmo caso do A1 do RF009 (usuário não encontrado).
+  // o banco: é o mesmo caso do A1 do RF009 (usuário não encontrado).
   if (!/^\d+$/.test(req.params.id)) {
     return res.status(404).json({ erro: "Usuário não encontrado. Verifique o endereço digitado." });
   }
@@ -119,8 +119,8 @@ router.get("/usuarios/:id/pins", async (req, res) => {
 });
 
 // ============================================================
-// POST /pins — criar pin (RF006)
-// Protegida — exige token válido. O autor é sempre o usuário logado,
+// POST /pins: criar pin (RF006)
+// Protegida: exige token válido. O autor é sempre o usuário logado,
 // nunca um valor mandado pelo cliente (evita alguém criar pin em nome de outro).
 // ============================================================
 router.post("/pins", exigirAutenticacao, async (req, res) => {
@@ -146,8 +146,8 @@ router.post("/pins", exigirAutenticacao, async (req, res) => {
 });
 
 // ============================================================
-// PUT /pins/:id — editar pin (RF007)
-// Protegida — só o autor do pin pode editar.
+// PUT /pins/:id   editar pin (RF007)
+// Protegida: só o autor do pin pode editar.
 // ============================================================
 router.put("/pins/:id", exigirAutenticacao, async (req, res) => {
   const { titulo, data, texto } = req.body;
@@ -182,8 +182,8 @@ router.put("/pins/:id", exigirAutenticacao, async (req, res) => {
 });
 
 // ============================================================
-// DELETE /pins/:id — excluir pin (RF008)
-// Protegida — só o autor do pin pode excluir.
+// DELETE /pins/:id   excluir pin (RF008)
+// Protegida: só o autor do pin pode excluir.
 // ============================================================
 router.delete("/pins/:id", exigirAutenticacao, async (req, res) => {
   try {

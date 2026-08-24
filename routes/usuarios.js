@@ -1,4 +1,4 @@
-// routes/usuarios.js — RF001 (cadastro) e RF002 (login)
+// routes/usuarios.js: RF001 (cadastro) e RF002 (login)
 
 const express = require("express");
 // bcryptjs em vez de bcrypt: mesma criptografia e mesmo formato de hash,
@@ -10,20 +10,20 @@ const db = require("../db");
 
 const router = express.Router();
 
-const SALT_ROUNDS = 10; // custo do hash — 10 é um padrão seguro e rápido o suficiente
+const SALT_ROUNDS = 10; // custo do hash, 10 é um padrão seguro e rápido o suficiente
 
 // ============================================================
-// POST /usuarios — Cadastro (RF001)
+// POST /usuarios: Cadastro (RF001)
 // ============================================================
 router.post("/usuarios", async (req, res) => {
   const { nome, email, senha, confirmarSenha } = req.body;
 
-  // A1/A3 do RF001 — campos obrigatórios
+  // A1/A3 do RF001: campos obrigatórios
   if (!nome || !email || !senha || !confirmarSenha) {
     return res.status(400).json({ erro: "Preencha todos os campos obrigatórios." });
   }
 
-  // A1 do RF001 — senhas não coincidem
+  // A1 do RF001: senhas não coincidem
   if (senha !== confirmarSenha) {
     return res.status(400).json({ erro: "As senhas não coincidem." });
   }
@@ -35,7 +35,7 @@ router.post("/usuarios", async (req, res) => {
   }
 
   try {
-    // A2 do RF001 — e-mail já cadastrado
+    // A2 do RF001: e-mail já cadastrado
     const existente = await db.query("SELECT id FROM usuarios WHERE email = $1", [email]);
     if (existente.rows.length > 0) {
       return res.status(409).json({ erro: "Este e-mail já está em uso." });
@@ -59,12 +59,12 @@ router.post("/usuarios", async (req, res) => {
 });
 
 // ============================================================
-// POST /login — Autenticação (RF002)
+// POST /login: Autenticação (RF002)
 // ============================================================
 router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
 
-  // A2 do RF002 — campos obrigatórios
+  // A2 do RF002: campos obrigatórios
   if (!email || !senha) {
     return res.status(400).json({ erro: "Preencha e-mail e senha." });
   }
@@ -73,8 +73,8 @@ router.post("/login", async (req, res) => {
     const resultado = await db.query("SELECT * FROM usuarios WHERE email = $1", [email]);
     const usuario = resultado.rows[0];
 
-    // A1 do RF002 — e-mail não encontrado OU senha incorreta.
-    // De propósito devolvemos a MESMA mensagem genérica nos dois casos —
+    // A1 do RF002: e-mail não encontrado OU senha incorreta.
+    // De propósito devolvemos a MESMA mensagem genérica nos dois casos, 
     // isso evita que alguém descubra, tentando emails ao acaso, quais
     // e-mails estão cadastrados no sistema.
     if (!usuario) {
