@@ -62,6 +62,15 @@ dados reais do Neon, e `npm start`. Abrir http://localhost:3000.
 8. **Datas trafegam sempre como texto `"AAAA-MM-DD"`**, nunca como objeto `Date`. Quem garante isso é o `setTypeParser` do `db.js`. Não remover.
 9. **Feature futura, só depois da revisão da banca (não implementar agora):** rota especial `PinPedia/Brasil`, separada das rotas por ID. O filtro de data dessa página não pode ir mais pra trás do que a data do descobrimento do Brasil — restrição exclusiva dessa página.
 
+## Verificação em produção (2026-08-23)
+
+Rodado contra o Supabase real e depois contra <https://pinpedia.vercel.app>:
+RF001 a RF009, incluindo cadastro, login com hash real, criação de PIN com data
+histórica (1500), filtro por período, edição, exclusão, mapa de terceiros e os
+fluxos alternativos (e-mail duplicado, senha errada, usuário inexistente,
+escrita sem token). **21 verificações locais e 20 em produção, todas passando.**
+Os usuários de teste foram removidos ao final — o banco ficou zerado.
+
 ## Status atual — tudo abaixo testado e funcionando
 
 - [x] RF001–RF008 (cadastro, login, mapa, ver artigo, criar/editar/excluir pin, filtro de data)
@@ -103,7 +112,7 @@ decisão: **ou muda o código, ou corrige o documento.**
 ## O que falta
 
 1. **RNF02** — testar em outros navegadores (Chrome, Firefox, Edge) e, se possível, mobile. É teste manual, não precisa de código. O toque longo foi validado em emulação de celular, mas vale confirmar num aparelho real.
-2. **Deploy/hospedagem** — mudou de Neon+Render para **Supabase + Vercel**. O código já está adaptado (ver abaixo); o passo a passo com os cliques que exigem login está em **`DEPLOY.md`**. Falta só executar.
+2. ~~**Deploy/hospedagem**~~ — **FEITO**. Está no ar em <https://pinpedia.vercel.app>, com banco no Supabase. Detalhes e como republicar: `DEPLOY.md`.
 3. **Pós-banca (não fazer agora):** implementar a rota `PinPedia/Brasil` com a restrição de data do descobrimento.
 
 ### Melhorias sugeridas, ainda não feitas

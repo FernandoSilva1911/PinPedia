@@ -1,10 +1,36 @@
-# Como colocar o PinPedia no ar (Supabase + Vercel)
+# Deploy do PinPedia (Supabase + Vercel)
 
-O código já está todo preparado. O que falta são as etapas que só podem ser
-feitas com a sua conta (login, senha, autorização) — cada uma está descrita
-clique a clique abaixo.
+## ✅ Já está no ar
 
-Tempo estimado: ~15 minutos.
+| | |
+|---|---|
+| **Site** | <https://pinpedia.vercel.app> |
+| **Banco** | Supabase, região `us-east-2`, via Transaction pooler (6543) |
+| **Projeto Vercel** | `pinpedia`, conta `fernandocruvinel-5646` |
+| **Painel Vercel** | <https://vercel.com/pinpedia/pinpedia> |
+
+Testado em produção: cadastro, login, criar/editar/excluir PIN, filtro de data,
+artigo com autor e visualização de terceiros (`/<id>`) — 20 verificações, todas
+passando. As variáveis `DATABASE_URL` e `JWT_SECRET` já estão cadastradas nos
+três ambientes (Production, Preview e Development).
+
+### Para publicar uma alteração
+
+Rode na pasta do projeto:
+
+```bash
+vercel deploy --prod
+```
+
+Se o repositório do GitHub for conectado ao projeto na Vercel (painel →
+Settings → Git), todo `git push` na `main` passa a publicar sozinho.
+
+---
+
+## O passo a passo abaixo é referência
+
+Fica registrado como o ambiente foi montado — útil para refazer do zero, migrar
+de conta ou entender o que cada variável faz.
 
 ---
 

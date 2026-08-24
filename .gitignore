@@ -1,7 +1,12 @@
 node_modules/
+*.log
+.impeccable/
+
+# pasta de trabalho da Vercel (contem ids do projeto e token OIDC)
+.vercel/
+
+# segredos: .env, .env.local, .env.bak ...
+# a excecao precisa vir DEPOIS da regra, senao nao vale
 .env
 .env.*
 !.env.example
-*.log
-.impeccable/
-.vercel/
