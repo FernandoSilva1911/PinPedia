@@ -51,6 +51,7 @@ public/index.html   interface (mapa, editor, telas de login e cadastro)
 routes/usuarios.js  cadastro e autenticação
 routes/pins.js      operações sobre os registros históricos
 middleware/auth.js  validação do token JWT
+colecoes.js         coleções temáticas, como a página /brasil
 db.js               conexão com o PostgreSQL
 server.js           montagem do Express e das rotas
 api/index.js        ponto de entrada na Vercel
@@ -62,7 +63,8 @@ schema.sql          criação das tabelas
 Cadastro e login. Mapa interativo com navegação e zoom. Criação, edição e
 exclusão de PINs restritas ao autor. Artigos com imagens, áudios e vídeos
 embutidos por marcação no texto. Filtro por intervalo de datas. Página pública
-por autor em `/<id>`, em modo somente leitura.
+por autor em `/<id>` e páginas temáticas como `/brasil`, ambas em modo somente
+leitura.
 
 ## Documentação
 

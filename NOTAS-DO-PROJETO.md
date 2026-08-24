@@ -44,6 +44,7 @@ middleware/
   auth.js         exigirAutenticacao, valida o JWT no header Authorization
 api/
   index.js        ponto de entrada da Vercel
+colecoes.js       coleções temáticas e seus pisos de data (ex: /brasil)
 db.js             conexão com o Postgres, usando DATABASE_URL
 server.js         monta o Express, cors, estáticos e a rota /:id do RF009.
                   Exporta o app e só chama listen() se rodado direto.
@@ -95,8 +96,17 @@ dados reais do Supabase, e `npm start`. A aplicação sobe em
 8. **Datas trafegam sempre como texto no formato `AAAA-MM-DD`**, nunca como
    objeto `Date`. Quem garante isso é o `setTypeParser` do `db.js`. Não remover.
 
-9. **Rota `/Brasil`**, separada das rotas por id, com o filtro de data limitado
-   à data do descobrimento do Brasil, fica para depois da revisão da banca.
+9. **Coleções temáticas.** Um pin pode pertencer a uma coleção, identificada
+   na coluna `colecao` da tabela `pins`. Cada coleção ganha uma página no
+   formato `/<slug>`, que mostra apenas os seus pins, em modo somente
+   leitura. É o mesmo mecanismo do RF009, recortando por tema em vez de por
+   autor. As coleções são declaradas em `colecoes.js`, e cada uma pode ter um
+   piso de data próprio: a de história do Brasil não aceita filtro anterior a
+   22 de abril de 1500. O mapa geral em `/` continua mostrando todo o acervo.
+
+   Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`
+   e marcar os pins com o slug correspondente. Não existe ainda interface para
+   fazer essa marcação: hoje é feita direto no banco.
 
 ## Verificação em produção
 
@@ -155,6 +165,21 @@ Tudo abaixo testado e funcionando.
 - Tela de login: os controles do mapa vazavam por cima dela, por conflito de
   camadas, e não havia como voltar ao mapa. Corrigido com `z-index` acima do
   Leaflet, botão "Voltar ao mapa" e tecla Esc.
+
+## Acervo de conteúdo
+
+A coleção `brasil`, publicada em <https://pinpedia.vercel.app/brasil>, reúne
+33 registros que vão da chegada de Cabral, em 1500, à morte de D. Pedro II no
+exílio, em 1891. Serve de conteúdo de demonstração e de teste de carga leve da
+interface, já que exercita o filtro por período, o enquadramento automático do
+mapa e a leitura de artigos longos.
+
+Os textos priorizam pontos pouco tratados no ensino básico e que têm lastro na
+historiografia acadêmica, entre eles a elevação do Brasil a Reino Unido em
+1815, a natureza de golpe militar da Proclamação de 1889, a participação de
+Estados africanos no tráfico atlântico, a construção republicana da figura de
+Tiradentes depois de 1889 e a organização estatal de Palmares. Onde há disputa
+entre historiadores, o texto diz que há.
 
 ## Divergências entre o código e o DERS
 
