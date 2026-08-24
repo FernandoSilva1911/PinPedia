@@ -9,6 +9,7 @@ const db = require("./db");
 const rotasUsuarios = require("./routes/usuarios");
 const rotasPins = require("./routes/pins");
 const { COLECOES } = require("./colecoes");
+const { RESERVADOS } = require("./slug");
 
 // Sem o JWT_SECRET não dá para assinar nem validar login. Sem esta checagem o
 // servidor sobe normalmente e só quebra na hora que alguém tenta entrar, com um
@@ -66,11 +67,17 @@ Object.keys(COLECOES).forEach((slug) => {
   });
 });
 
-// RF009, visualização de terceiros pela URL NomeDoSite/<id numérico>
-// Fica DEPOIS das rotas da API de propósito: assim /pins, /login,
-// /teste-db etc continuam batendo nas rotas certas acima, e só cai
-// aqui quando é de fato "/algumNumero" (ex: /1, /42).
-app.get(/^\/\d+$/, (req, res) => {
+// RF009, visualização de terceiros pelo endereço do autor: NomeDoSite/<url>,
+// como /fernando. O id numérico também continua valendo, para não quebrar
+// links antigos.
+//
+// Fica DEPOIS das rotas da API de propósito: /pins, /login, /teste-db e as
+// demais já foram atendidas acima, e a lista de reservados barra o que
+// sobrar. Quem tiver ponto no nome é arquivo estático que não existe, e
+// segue para o 404 normal em vez de receber a página.
+app.get("/:endereco", (req, res, next) => {
+  const endereco = req.params.endereco;
+  if (RESERVADOS.has(endereco) || endereco.includes(".")) return next();
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 

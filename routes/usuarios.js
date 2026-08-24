@@ -7,6 +7,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../db");
+const { gerarUrlUnica } = require("../slug");
 
 const router = express.Router();
 
@@ -43,9 +44,12 @@ router.post("/usuarios", async (req, res) => {
 
     const senhaHash = await bcrypt.hash(senha, SALT_ROUNDS);
 
+    // endereço público do mapa deste usuário, derivado do nome (RF009)
+    const url = await gerarUrlUnica(db, nome);
+
     const resultado = await db.query(
-      "INSERT INTO usuarios (nome, email, senha_hash) VALUES ($1, $2, $3) RETURNING id, nome, email",
-      [nome, email, senhaHash]
+      "INSERT INTO usuarios (nome, email, senha_hash, url) VALUES ($1, $2, $3, $4) RETURNING id, nome, email, url",
+      [nome, email, senhaHash, url]
     );
 
     return res.status(201).json({
@@ -95,7 +99,7 @@ router.post("/login", async (req, res) => {
     return res.json({
       mensagem: "Login realizado com sucesso.",
       token,
-      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
+      usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, url: usuario.url },
     });
   } catch (erro) {
     console.error(erro);

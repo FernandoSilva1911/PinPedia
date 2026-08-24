@@ -779,7 +779,9 @@
 
       const meuMapa = document.getElementById("meuMapaLink");
       if (loggedIn && usuarioAtual) {
-        meuMapa.href = `/${usuarioAtual.id}`;
+        // usa o endereço legível do RF009; cai no id quando a sessão foi
+        // salva antes de os endereços existirem
+        meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
         meuMapa.style.display = "inline";
       } else {
         meuMapa.style.display = "none";
@@ -1064,11 +1066,13 @@
           API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString()
         );
 
+        // Um caminho de um segmento pode ser uma coleção ou o endereço de um
+        // autor. Não sendo coleção, tentamos como autor antes de desistir.
         if (resp.status === 404) {
-          const dados = await resp.json();
-          mostrarBannerLeitura(escaparHtml(dados.erro || "Coleção não encontrada."), true);
-          pins = [];
-          renderMarkers();
+          modoColecao = false;
+          usuarioVisualizadoId = colecaoAtual;
+          colecaoAtual = null;
+          await carregarPinsDoUsuario();
           return;
         }
         if (!resp.ok) throw new Error("Falha ao buscar a coleção");

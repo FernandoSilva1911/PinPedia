@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   nome          VARCHAR(120) NOT NULL,
   email         VARCHAR(160) NOT NULL UNIQUE,
   senha_hash    VARCHAR(255) NOT NULL,
+  -- endereço público do mapa deste usuário, usado em /<url> (RF009).
+  -- Gerado a partir do nome no cadastro. Ver slug.js.
+  url           VARCHAR(40) UNIQUE,
   criado_em     TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

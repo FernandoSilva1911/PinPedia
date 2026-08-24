@@ -89,22 +89,25 @@ router.get("/pins/:id", async (req, res) => {
 // ============================================================
 router.get("/usuarios/:id/pins", async (req, res) => {
   const { dataInicial, dataFinal } = req.query;
-
-  // o id vem da URL digitada pelo usuário; se não for número nem consultamos
-  // o banco: é o mesmo caso do A1 do RF009 (usuário não encontrado).
-  if (!/^\d+$/.test(req.params.id)) {
-    return res.status(404).json({ erro: "Usuário não encontrado. Verifique o endereço digitado." });
-  }
+  const chave = req.params.id;
 
   try {
-    // primeiro confirma que o usuário existe, senão é 404 (A1 do RF009)
-    const usuario = await db.query("SELECT id, nome FROM usuarios WHERE id = $1", [req.params.id]);
+    // O parâmetro aceita as duas formas: o endereço escolhido no cadastro,
+    // como /fernando, e o id numérico, que continua valendo para não quebrar
+    // links antigos.
+    const porId = /^\d+$/.test(chave);
+    const usuario = await db.query(
+      porId ? "SELECT id, nome, url FROM usuarios WHERE id = $1" : "SELECT id, nome, url FROM usuarios WHERE url = $1",
+      [chave]
+    );
+
+    // A1 do RF009: endereço que não corresponde a nenhum usuário
     if (usuario.rows.length === 0) {
       return res.status(404).json({ erro: "Usuário não encontrado. Verifique o endereço digitado." });
     }
 
     let sql = "SELECT id, titulo, data, latitude, longitude, autor_id FROM pins WHERE autor_id = $1";
-    const valores = [req.params.id];
+    const valores = [usuario.rows[0].id];
 
     if (dataInicial) {
       valores.push(dataInicial);
