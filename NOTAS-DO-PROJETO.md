@@ -137,6 +137,17 @@ Em banco criado do zero pelo `schema.sql` isso já vem junto.
    Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`,
    com o `donoId` de quem vai mantê-la, e marcar os pins existentes com o slug.
 
+10. **O mapa principal é particular de cada conta.**  exige sessão e
+    devolve apenas os pins avulsos de quem está autenticado. Registros de outra
+    pessoa são vistos pela página dela, em  do RF009, e os de uma coleção
+    pela página da coleção. Visitante sem sessão vê o mapa vazio com um convite
+    para entrar.
+
+    Isso não torna os registros secretos: a página de autor do RF009 continua
+    pública, então qualquer pessoa vê o mapa de qualquer autor pelo endereço
+    dele. O que mudou é que a raiz deixou de ser um mural comum onde os pins de
+    todas as contas apareciam juntos.
+
 ## Verificação em produção
 
 Rodado contra o Supabase e depois contra <https://pinpedia.vercel.app>: RF001 a
@@ -287,6 +298,16 @@ decisão: mudar o código ou corrigir o documento.
    RF009. Acrescentar as coleções ao RF003 e ao RF009, ou criar um requisito
    próprio para elas.
 
+8. **RF003, atores e fluxo básico.** O DERS descreve o mapa principal como
+   público, com ator "Utilizador (Autenticado ou Visitante)", exibindo os
+   marcadores cadastrados. Agora a raiz é o mapa particular da conta logada e
+   exige autenticação; o visitante recebe um convite para entrar. O acesso
+   público a registros passou a ser feito pelas páginas de autor e de coleção.
+   Isso também tensiona a justificativa do projeto, que fala em múltiplas
+   perspectivas autorais sobre um mesmo local: elas continuam existindo, mas
+   deixam de aparecer lado a lado numa tela só. Precisa ser refletido no RF003 e
+   na seção 1.3 do DERS.
+
 ## O que falta
 
 **RNF02.** Testar em outros navegadores (Chrome, Firefox e Edge) e, se possível,
@@ -318,10 +339,10 @@ somente leitura, e recebe 403 se tentar publicar na coleção pela API. A regra 
 propriedade por pin do RF007 e do RF008 continua valendo por cima disso: ninguém
 edita o registro de outra pessoa.
 
-**Por que o mapa principal aparece vazio?** Porque todos os registros atuais
-pertencem à coleção `brasil` e, por decisão de projeto, pins de coleção só
-aparecem na página da própria coleção. Um pin criado pela interface nasce sem
-coleção e aparece normalmente no mapa principal.
+**Por que o mapa principal aparece vazio?** Porque ele é particular: mostra
+apenas os registros da conta que está logada. Sem entrar, não há o que exibir, e
+a tela traz um convite para autenticar. O acervo público da plataforma está em
+, e o mapa de cada autor no endereço dele.
 
 **Dá para registrar um evento antes de Cristo?** Não. O `<input type="date">` do
 HTML não aceita data anterior à era cristã, então a plataforma cobre da era

@@ -9,21 +9,23 @@ const { COLECOES } = require("../colecoes");
 const router = express.Router();
 
 // ============================================================
-// GET /pins: lista pins, com filtro opcional de data (RF003 + RF005)
-// Pública: qualquer visitante pode ver o mapa.
+// GET /pins: mapa particular da conta logada (RF003 + RF005)
+// Protegida. Cada conta tem o seu próprio mapa: esta rota devolve apenas os
+// pins avulsos de quem está autenticado. Os registros de outra pessoa são
+// vistos pela página dela, em GET /usuarios/:id/pins (RF009), e os de uma
+// coleção pela página da coleção.
 // Exemplo: GET /pins?dataInicial=1500-01-01&dataFinal=1600-01-01
 // ============================================================
-router.get("/pins", async (req, res) => {
+router.get("/pins", exigirAutenticacao, async (req, res) => {
   const { dataInicial, dataFinal } = req.query;
 
   try {
     let sql = "SELECT id, titulo, data, latitude, longitude, autor_id FROM pins";
 
-    // O mapa geral mostra apenas os pins avulsos. Quem pertence a uma coleção
-    // temática aparece só na página da coleção, como /brasil, para os dois
-    // acervos não se misturarem.
-    const condicoes = ["colecao IS NULL"];
-    const valores = [];
+    // dois recortes fixos: só os pins desta conta, e só os que não pertencem
+    // a nenhuma coleção temática
+    const condicoes = ["colecao IS NULL", "autor_id = $1"];
+    const valores = [req.usuario.id];
 
     if (dataInicial) {
       valores.push(dataInicial);
