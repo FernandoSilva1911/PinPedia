@@ -5,6 +5,7 @@
 | | |
 |---|---|
 | **Site** | <https://pinpedia.vercel.app> |
+| **Código** | <https://github.com/FernandoSilva1911/PinPedia> |
 | **Banco** | Supabase, região `us-east-2`, via Transaction pooler (6543) |
 | **Projeto Vercel** | `pinpedia`, conta `fernandocruvinel-5646` |
 | **Painel Vercel** | <https://vercel.com/pinpedia/pinpedia> |
@@ -16,14 +17,23 @@ três ambientes (Production, Preview e Development).
 
 ### Para publicar uma alteração
 
-Rode na pasta do projeto:
+Hoje o deploy é manual. Na pasta do projeto:
 
 ```bash
 vercel deploy --prod
 ```
 
-Se o repositório do GitHub for conectado ao projeto na Vercel (painel →
-Settings → Git), todo `git push` na `main` passa a publicar sozinho.
+### Opcional: deixar o deploy automático
+
+Falta uma autorização que só o dono da conta pode dar — a Vercel precisa da
+permissão do app do GitHub, e isso é um consentimento OAuth.
+
+1. <https://vercel.com/pinpedia/pinpedia> → **Settings** → **Git**
+2. **Connect Git Repository** → GitHub → autorizar a Vercel
+3. Escolher `FernandoSilva1911/PinPedia`
+
+Feito isso, todo `git push` na `main` publica sozinho.
+Cuidado com push de última hora antes de apresentar.
 
 ---
 
