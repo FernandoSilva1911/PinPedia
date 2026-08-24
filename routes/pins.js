@@ -18,7 +18,11 @@ router.get("/pins", async (req, res) => {
 
   try {
     let sql = "SELECT id, titulo, data, latitude, longitude, autor_id FROM pins";
-    const condicoes = [];
+
+    // O mapa geral mostra apenas os pins avulsos. Quem pertence a uma coleção
+    // temática aparece só na página da coleção, como /brasil, para os dois
+    // acervos não se misturarem.
+    const condicoes = ["colecao IS NULL"];
     const valores = [];
 
     if (dataInicial) {

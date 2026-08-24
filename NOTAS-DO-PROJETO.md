@@ -102,7 +102,8 @@ dados reais do Supabase, e `npm start`. A aplicação sobe em
    leitura. É o mesmo mecanismo do RF009, recortando por tema em vez de por
    autor. As coleções são declaradas em `colecoes.js`, e cada uma pode ter um
    piso de data próprio: a de história do Brasil não aceita filtro anterior a
-   22 de abril de 1500. O mapa geral em `/` continua mostrando todo o acervo.
+   22 de abril de 1500. O mapa geral em `/` mostra apenas os pins avulsos: quem
+   pertence a uma coleção aparece só na página dela.
 
    Para criar uma coleção nova basta acrescentar uma entrada em `colecoes.js`
    e marcar os pins com o slug correspondente. Não existe ainda interface para
