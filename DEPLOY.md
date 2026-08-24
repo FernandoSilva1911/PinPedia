@@ -17,23 +17,27 @@ três ambientes (Production, Preview e Development).
 
 ### Para publicar uma alteração
 
-Hoje o deploy é manual. Na pasta do projeto:
+O repositório está conectado à Vercel: **todo `git push` na branch `main`
+publica sozinho**, sem nenhum comando extra.
 
 ```bash
-vercel deploy --prod
+git add -A
 ```
 
-### Opcional: deixar o deploy automático
+```bash
+git commit -m "descricao da alteracao"
+```
 
-Falta uma autorização que só o dono da conta pode dar — a Vercel precisa da
-permissão do app do GitHub, e isso é um consentimento OAuth.
+```bash
+git push
+```
 
-1. <https://vercel.com/pinpedia/pinpedia> → **Settings** → **Git**
-2. **Connect Git Repository** → GitHub → autorizar a Vercel
-3. Escolher `FernandoSilva1911/PinPedia`
+Em cerca de um minuto a alteração está no ar. Dá para acompanhar em
+<https://vercel.com/pinpedia/pinpedia>.
 
-Feito isso, todo `git push` na `main` publica sozinho.
-Cuidado com push de última hora antes de apresentar.
+> ⚠️ Como o push publica direto em produção, evite push de última hora antes de
+> apresentar. Se precisar publicar sem passar pelo git, ainda funciona:
+> `vercel deploy --prod`.
 
 ---
 
