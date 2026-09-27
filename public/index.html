@@ -287,6 +287,7 @@
       text-decoration: underline;
       font-weight: bold;
       white-space: nowrap;
+      color: white;
     }
 
     /* ERRO DE CARREGAMENTO DO MAPA (RF003, fluxo alternativo A1) */
@@ -511,8 +512,7 @@
     </div>
 
     <div class="acoes-usuario">
-      <!-- atalho para o próprio mapa público (RF009); sem ele só se chega
-           lá digitando o número do usuário na URL -->
+      <!-- atalho para o próprio mapa público (RF009) -->
       <a id="meuMapaLink" class="meu-mapa" href="#">Meu mapa</a>
       <div class="login" id="authBtn" onclick="toggleAuth()">Realizar login</div>
     </div>
@@ -644,12 +644,6 @@
   <script>
     // ============================================================
     // SEGURANÇA: escapar o que foi escrito por usuários
-    // Título, texto do artigo e nome do autor são digitados por qualquer
-    // pessoa cadastrada. Se esse conteúdo for jogado direto no innerHTML,
-    // alguém pode salvar uma tag como <img src=x onerror="..."> que passaria
-    // a executar código no navegador de TODOS os leitores (inclusive para
-    // roubar o token guardado no localStorage). Escapar converte esses
-    // caracteres em texto comum, que aparece na tela mas não executa.
     // ============================================================
     function escaparHtml(valor) {
       return String(valor ?? "")
@@ -660,15 +654,11 @@
         .replace(/'/g, "&#39;");
     }
 
-    // Só aceita endereços http/https. Descarta coisas como "javascript:..."
-    // ou "data:...", que também conseguem executar código quando viram o
-    // src de uma tag. Recebe a URL já escapada, então não escapa de novo.
     function urlSegura(url) {
       const limpa = String(url ?? "").trim();
       return /^https?:\/\//i.test(limpa) ? limpa : "";
     }
 
-    // precisa existir ANTES do script do Leaflet, pro onerror poder chamar
     function mostrarErroCarregamentoMapa() {
       document.getElementById("map").style.display = "none";
       document.getElementById("mapErrorScreen").style.display = "flex";
@@ -692,9 +682,6 @@
 
     // ============================================================
     // POP-UP DE CONFIRMAÇÃO (RF008)
-    // Substitui o confirm() nativo do navegador, que tem visual próprio
-    // de cada browser e não segue a interface do sistema (RNF04).
-    // Uso: if (await pedirConfirmacao("...")) { ... }
     // ============================================================
     let resolverConfirmacao = null;
 
@@ -706,7 +693,6 @@
       });
     }
 
-    // chamado pelos botões "Confirmar" e "Cancelar" do pop-up
     function responderConfirmacao(resposta) {
       document.getElementById("confirmOverlay").style.display = "none";
       if (resolverConfirmacao) {
@@ -721,40 +707,33 @@
     // ============================================================
     // ESTADO
     // ============================================================
-    const API_BASE = window.location.origin; // agora servido pelo próprio backend
+    const API_BASE = window.location.origin;
 
-    // se o Leaflet não carregou (onerror já tratou isso), não executa o resto
     if (typeof L === "undefined") {
       throw new Error("Leaflet não disponível. O mapa não pode ser inicializado.");
     }
 
-    let token = null;        // token JWT do usuário logado (só em memória, some ao recarregar a página)
-    let usuarioAtual = null; // { id, nome, email }
+    let token = null;
+    let usuarioAtual = null;
     let loggedIn = false;
 
-    let pins = [];           // populado via fetch em carregarPins()
-    let markers = {};        // id -> objeto Leaflet marker
+    let pins = [];
+    let markers = {};
 
     let contextLatLng = null;
     let contextPinId = null;
     let editingPinId = null;
 
-    // no celular, soltar o dedo depois de um toque longo ainda dispara um
-    // "click"; esta marca faz esse clique ser ignorado, para o artigo não
-    // abrir por cima do menu que o toque longo acabou de abrir
     let toqueLongoDisparou = false;
 
-    // modo leitura (RF009): visualização de terceiros pela URL /<id do autor>
+    // modo leitura (RF009): ativo quando na Home ("/") ou ao ver perfil de terceiros
     let modoLeitura = false;
     let usuarioVisualizadoId = null;
 
-    // coleção temática: páginas como /brasil, que mostram só os pins
-    // marcados com aquele tema. Também são somente leitura.
     let modoColecao = false;
     let colecaoAtual = null;
     let colecaoJaEnquadrada = false;
 
-    // pequeno helper pra chamadas autenticadas
     function headersAutenticados() {
       return token
         ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
@@ -769,9 +748,6 @@
       localStorage.setItem("usuarioAtual", JSON.stringify(usuarioAtual));
     }
 
-    // Um único lugar que reflete o estado do login na barra de cima: o texto do
-    // botão e o atalho "Meu mapa". Assim login, logout e restauração de sessão
-    // não podem discordar entre si.
     function atualizarBarraUsuario() {
       document.getElementById("authBtn").textContent = loggedIn
         ? "Encerrar sessão"
@@ -779,8 +755,6 @@
 
       const meuMapa = document.getElementById("meuMapaLink");
       if (loggedIn && usuarioAtual) {
-        // usa o endereço legível do RF009; cai no id quando a sessão foi
-        // salva antes de os endereços existirem
         meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
         meuMapa.style.display = "inline";
       } else {
@@ -792,9 +766,6 @@
 
     // ============================================================
     // CRIAR PIN PELO BOTAO (RF006)
-    // O botao nao sabe onde o pin vai ficar, entao ele liga um modo de
-    // posicionamento: o proximo clique no mapa e que define a coordenada,
-    // do mesmo jeito que o clique com o botao direito ja fazia.
     // ============================================================
     let modoPosicionamento = false;
 
@@ -802,8 +773,7 @@
       const caixa = document.getElementById("criarPinBox");
       if (!caixa) return;
 
-      // so quem esta logado cria pin (pre-condicao do RF006), e o modo
-      // leitura do RF009 nao permite escrita nenhuma
+      // Opção A: Só ativa a criação de PIN se o utilizador estiver na sua própria rota
       const podeCriar = loggedIn && !modoLeitura && !!map;
       caixa.style.display = podeCriar ? "flex" : "none";
       if (!podeCriar) sairModoPosicionamento();
@@ -860,7 +830,6 @@
       atualizarBarraUsuario();
     }
 
-    // chamado quando uma rota autenticada devolve 401 (token expirado/inválido)
     function sessaoExpirada() {
       limparSessao();
       mostrarToast("Sua sessão expirou. Faça login novamente.", "erro");
@@ -878,7 +847,6 @@
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // tile isolado falhou (ex: internet instável), avisa sem travar o mapa
       let avisoTileMostrado = false;
       map.on('tileerror', () => {
         if (avisoTileMostrado) return;
@@ -895,10 +863,6 @@
     }
 
     function parseConteudo(texto) {
-      // A ordem aqui é o que garante a segurança:
-      // 1º escapa TUDO que o usuário escreveu (vira texto sem poder de execução)
-      // 2º só então trocamos as marcações [img]/[video]/[audio] por HTML nosso,
-      //    aceitando apenas endereços http/https como endereço da mídia.
       let html = escaparHtml(texto);
 
       html = html
@@ -930,15 +894,12 @@
         await carregarPinsDaColecao();
         return;
       }
-      if (modoLeitura) {
+      if (modoLeitura && usuarioVisualizadoId) {
         await carregarPinsDoUsuario();
         return;
       }
 
-      // O mapa principal é particular de cada conta. Sem sessão não há o que
-      // carregar: mostramos o convite para entrar em vez de um mapa vazio sem
-      // explicação. Os acervos públicos continuam acessíveis pelas páginas de
-      // autor (/<id>) e de coleção (/brasil).
+      // Se estiver na Home ("/") sem estar a visualizar um utilizador específico:
       if (!loggedIn) {
         pins = [];
         renderMarkers();
@@ -974,33 +935,41 @@
     }
 
     // ============================================================
-    // MODO LEITURA: VISUALIZAÇÃO DE TERCEIROS (RF009)
-    // Acesso via NomeDoSite/<id>, ex: http://localhost:3000/1
-    // Exige que o frontend esteja sendo servido pelo Express (pasta
-    // public/), não mais aberto direto como arquivo local.
+    // MODO LEITURA E ROTAS (RF009)
     // ============================================================
     function verificarModoLeitura() {
       const partes = window.location.pathname.split("/").filter(Boolean);
       const primeiro = partes[0];
-      if (!primeiro) return;
 
-      // um caminho que não é número é tratado como coleção temática.
-      // Se ela não existir, o backend responde 404 e mostramos o aviso.
+      // Caso 1: Está na Home ("/")
+      if (!primeiro) {
+        modoLeitura = true;
+        usuarioVisualizadoId = null;
+        atualizarBotaoCriarPin();
+        return;
+      }
+
+      // Caso 2: Coleções temáticas (ex: /brasil)
       if (!/^\d+$/.test(primeiro)) {
         modoColecao = true;
         modoLeitura = true;
         colecaoAtual = primeiro.toLowerCase();
+        atualizarBotaoCriarPin();
         return;
       }
 
+      // Caso 3: Rota de utilizador (ex: /1 ou /fernando)
       const usuarioId = primeiro;
-      if (usuarioId && /^\d+$/.test(usuarioId)) {
+      usuarioVisualizadoId = usuarioId;
+
+      // Se o utilizador logado for o dono da rota, desativa o modo leitura para permitir criação
+      if (loggedIn && usuarioAtual && (String(usuarioAtual.id) === String(usuarioId) || usuarioAtual.url === usuarioId)) {
+        modoLeitura = false;
+      } else {
         modoLeitura = true;
-        usuarioVisualizadoId = usuarioId;
-        // o filtro de data e o botão de login continuam disponíveis: o Quadro 19
-        // do DERS lista os dois nessa tela. O que o modo leitura tira é só a
-        // possibilidade de criar/editar/excluir pins (menu de botão direito).
       }
+
+      atualizarBotaoCriarPin();
     }
 
     function sairModoLeitura() {
@@ -1018,7 +987,6 @@
       try {
         const resp = await fetch(`${API_BASE}/usuarios/${usuarioVisualizadoId}/pins?${params.toString()}`);
 
-        // A1 do RF009: usuário não encontrado
         if (resp.status === 404) {
           const dados = await resp.json();
           mostrarBannerLeitura(escaparHtml(dados.erro || "Usuário não encontrado. Verifique o endereço digitado."), true);
@@ -1031,7 +999,13 @@
 
         const dados = await resp.json();
         pins = dados.pins;
-        mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
+
+        if (loggedIn && usuarioAtual && (String(usuarioAtual.id) === String(dados.usuario.id) || usuarioAtual.url === usuarioVisualizadoId)) {
+          esconderBanner();
+        } else {
+          mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
+        }
+        
         renderMarkers();
       } catch (erro) {
         console.error(erro);
@@ -1041,12 +1015,7 @@
 
     // ============================================================
     // COLEÇÃO TEMÁTICA
-    // Páginas como /brasil. Mesmo mecanismo do RF009, mas recortando
-    // por tema em vez de por autor. Ver colecoes.js no back-end.
     // ============================================================
-    // Numa coleção curada, o dono trabalha normalmente: cria, edita e exclui.
-    // Para todos os outros a página é somente leitura. Como isso depende de
-    // quem está logado, é reavaliado a cada carregamento.
     function avaliarPermissaoDaColecao(donoId) {
       const souDono = loggedIn && usuarioAtual && donoId != null && usuarioAtual.id === donoId;
       modoLeitura = !souDono;
@@ -1066,8 +1035,6 @@
           API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString()
         );
 
-        // Um caminho de um segmento pode ser uma coleção ou o endereço de um
-        // autor. Não sendo coleção, tentamos como autor antes de desistir.
         if (resp.status === 404) {
           modoColecao = false;
           usuarioVisualizadoId = colecaoAtual;
@@ -1080,14 +1047,11 @@
         const dados = await resp.json();
         pins = dados.pins;
 
-        // o piso de data da coleção vira limite do campo, para não ser
-        // possível pedir um período que a página não cobre
         if (dados.colecao.dataMinima) {
           document.getElementById("dataInicial").min = dados.colecao.dataMinima;
           document.getElementById("dataFinal").min = dados.colecao.dataMinima;
         }
 
-        // quem é dono da coleção edita nela; os demais só leem
         avaliarPermissaoDaColecao(dados.colecao.donoId);
 
         const nome = escaparHtml(dados.colecao.nome);
@@ -1096,7 +1060,6 @@
 
         renderMarkers();
 
-        // na primeira carga, enquadra o mapa nos pins da coleção
         if (!colecaoJaEnquadrada && map && pins.length > 0) {
           colecaoJaEnquadrada = true;
           const limites = L.latLngBounds(pins.map((p) => [p.latitude, p.longitude]));
@@ -1108,14 +1071,16 @@
       }
     }
 
-    // Convite exibido no mapa principal para quem não entrou. Sem ele o
-    // visitante vê um mapa vazio e conclui que o site está quebrado.
+    // Convite na Home ("/")
     function mostrarConviteDeLogin() {
       const banner = document.getElementById("readonlyBanner");
-      banner.innerHTML =
-        "Este é o seu mapa particular. " +
-        '<span class="voltar-link" onclick="openLogin()">Entre na sua conta</span>' +
-        " para ver e criar os seus registros.";
+      if (loggedIn) {
+        banner.innerHTML =
+          `Você está no mapa global. Para criar ou gerenciar seus PINs, acesse <a href="/${usuarioAtual.url || usuarioAtual.id}" class="voltar-link">Seu Mapa Particular</a>.`;
+      } else {
+        banner.innerHTML =
+          'Bem-vindo ao PinPedia! <span class="voltar-link" onclick="openLogin()">Entre na sua conta</span> para acessar o seu mapa particular e criar registros.';
+      }
       banner.style.background = "#1f4f8a";
       banner.style.display = "flex";
     }
@@ -1133,9 +1098,8 @@
     }
 
     function renderMarkers() {
-      if (!map) return; // mapa não carregou, nada a desenhar
+      if (!map) return;
 
-      // remove marcadores atuais
       Object.values(markers).forEach(m => map.removeLayer(m));
       markers = {};
 
@@ -1147,21 +1111,17 @@
           { direction: 'top', offset: [0, -10], sticky: true }
         );
 
-        // clique esquerdo -> abre artigo (leitura, disponível para todos - RF004)
         marker.on('click', () => {
           if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
           openViewer(pin.id);
         });
 
-        // clique direito -> menu de editar/excluir (RF007/RF008)
-        // desabilitado inteiramente em modo leitura (RF009)
         marker.on('contextmenu', (e) => {
           if (modoLeitura) return;
 
           contextPinId = pin.id;
           contextLatLng = null;
 
-          // só oferece editar/excluir se for o autor do pin
           const podeEditar = loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
 
           document.getElementById("createPinOpt").style.display = "none";
@@ -1171,8 +1131,6 @@
           showMenu(e.containerPoint.x, e.containerPoint.y);
         });
 
-        // marca o ícone com o id do pin, para o toque longo (celular) saber
-        // sobre qual marcador o dedo ficou parado
         const icone = marker.getElement();
         if (icone) icone.dataset.pinId = pin.id;
 
@@ -1181,14 +1139,10 @@
     }
 
     // ============================================================
-    // TOQUE LONGO: equivalente do clique direito no celular
-    // Em tela de toque não existe botão direito, então sem isso o RF006
-    // (criar pin) e o RF007/RF008 (editar/excluir) seriam impossíveis no
-    // celular: o que contraria a restrição de acesso por Desktop e Mobile.
+    // TOQUE LONGO (Mobile)
     // ============================================================
     function abrirMenuPorToqueLongo(x, y, iconeDoMarcador) {
       if (iconeDoMarcador) {
-        // dedo parado sobre um marcador -> mesmas opções do clique direito nele
         const pinId = Number(iconeDoMarcador.dataset.pinId);
         const pin = pins.find((p) => p.id === pinId);
         if (!pin) return;
@@ -1203,8 +1157,7 @@
         document.getElementById("editPinOpt").style.display = "block";
         document.getElementById("deletePinOpt").style.display = "block";
       } else {
-        // dedo parado em área vazia do mapa -> criar pin
-        if (!loggedIn) return;
+        if (!loggedIn || modoLeitura) return;
 
         contextLatLng = map.containerPointToLatLng([x, y]);
         contextPinId = null;
@@ -1239,8 +1192,6 @@
         }, 600);
       }, { passive: true });
 
-      // se o dedo arrastou (o usuário está navegando pelo mapa) ou soltou
-      // antes dos 600ms, não era um toque longo
       const cancelarToqueLongo = () => {
         if (timerToqueLongo) {
           clearTimeout(timerToqueLongo);
@@ -1252,8 +1203,6 @@
       containerMapa.addEventListener("touchcancel", cancelarToqueLongo);
     }
 
-    // clique direito em área vazia -> criar pin (RF006)
-    // desabilitado inteiramente em modo leitura (RF009)
     if (map) map.on("contextmenu", (e) => {
       if (modoLeitura) return;
 
@@ -1264,10 +1213,7 @@
       document.getElementById("editPinOpt").style.display = "none";
       document.getElementById("deletePinOpt").style.display = "none";
 
-      if (!loggedIn) {
-        // ainda mostramos o menu vazio? melhor nem mostrar.
-        return;
-      }
+      if (!loggedIn) return;
       showMenu(e.containerPoint.x, e.containerPoint.y);
     });
 
@@ -1275,8 +1221,6 @@
       if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
       hideMenu();
 
-      // com o modo de posicionamento ligado, este clique escolhe o lugar do
-      // novo pin e abre o editor ja com a coordenada capturada
       if (modoPosicionamento) {
         contextLatLng = e.latlng;
         contextPinId = null;
@@ -1354,7 +1298,6 @@
       const titleBar = document.getElementById("editorTitleBar");
 
       if (pinId === null) {
-        // criando novo pin
         titleBar.textContent = "Novo artigo";
         tituloInput.value = "";
         dataInput.value = new Date().toISOString().split("T")[0];
@@ -1363,7 +1306,6 @@
         atualizarPreview();
         editorOverlay.style.display = "flex";
       } else {
-        // editando pin existente: busca o texto completo na API
         try {
           const resp = await fetch(`${API_BASE}/pins/${pinId}`);
           if (!resp.ok) throw new Error("Pin não encontrado");
@@ -1418,7 +1360,6 @@
         let resp;
 
         if (editingPinId === null) {
-          // criação: usa a coordenada capturada no clique direito
           if (!contextLatLng) {
             mostrarToast("Coordenada não capturada. Clique com o botão direito no mapa para criar um pin.", "erro");
             return;
@@ -1429,7 +1370,6 @@
             longitude: contextLatLng.lng,
           };
 
-          // criado a partir da página de uma coleção, o pin já nasce dentro dela
           if (modoColecao && colecaoAtual) novoPin.colecao = colecaoAtual;
 
           resp = await fetch(`${API_BASE}/pins`, {
@@ -1515,8 +1455,6 @@
           <div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>
         `;
 
-        // RF007 passo 2: o sistema identifica que o leitor é o proprietário
-        // do pin e só então exibe o botão "Editar".
         const podeEditar = !modoLeitura && loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
         document.getElementById("btnEditarViewer").style.display = podeEditar ? "inline-block" : "none";
 
@@ -1532,7 +1470,6 @@
       viewingPinId = null;
     }
 
-    // RF007 passo 3: do artigo aberto direto para o formulário de edição
     function editarPinDoViewer() {
       const pinId = viewingPinId;
       closeViewer();
@@ -1545,7 +1482,7 @@
     function toggleAuth() {
       if (loggedIn) {
         limparSessao();
-        carregarPins(); // atualiza marcadores (esconde opções de editar/excluir)
+        carregarPins();
         mostrarToast("Sessão encerrada.", "sucesso");
       } else {
         openLogin();
@@ -1569,18 +1506,13 @@
       document.getElementById("registerScreen").style.display = "flex";
     }
 
-    // Fecha login/cadastro e devolve o usuário ao mapa. É o caminho de volta
-    // para quem abriu a tela sem querer, ou desistiu de entrar.
     function voltarAoMapa() {
       hideAllScreens();
     }
 
-    // Esc faz a mesma coisa. Só age nas telas de login/cadastro: o editor de
-    // artigo fica de fora de propósito, para não descartar texto sem querer.
     document.addEventListener("keydown", (evento) => {
       if (evento.key !== "Escape") return;
 
-      // desistir de posicionar o pin vem antes de fechar telas
       if (modoPosicionamento) {
         sairModoPosicionamento();
         return;
@@ -1622,6 +1554,7 @@
         loggedIn = true;
         salvarSessao();
         atualizarBarraUsuario();
+        verificarModoLeitura();
         hideAllScreens();
         carregarPins();
         mostrarToast(`Login realizado com sucesso. Bem-vindo(a), ${usuarioAtual.nome}!`, "sucesso");
@@ -1687,10 +1620,10 @@
     }
 
     // ============================================================
-    // INICIALIZAÇÃO
+    // INICIALIZAÇÃO CORRIGIDA
     // ============================================================
-    verificarModoLeitura();
     restaurarSessao();
+    verificarModoLeitura();
     if (map) carregarPins();
   </script>
 
