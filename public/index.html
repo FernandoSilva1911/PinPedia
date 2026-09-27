@@ -2,9 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <!-- Sem esta linha o celular renderiza a página como se fosse um monitor
-       largo e depois encolhe tudo. A restrição obrigatória do projeto pede
-       acesso por Desktop E Mobile. -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PinPedia</title>
 
@@ -51,7 +48,7 @@
     }
 
     .meu-mapa {
-      display: none; /* só aparece com usuário logado */
+      display: none;
       color: white;
       font-size: 13px;
       text-decoration: underline;
@@ -84,9 +81,6 @@
       background: #f2f5f9;
       justify-content: center;
       align-items: center;
-      /* precisa ficar acima dos controles do Leaflet, que usam z-index 1000.
-         Com um valor menor, o mapa some mas os botoes de zoom continuam
-         flutuando por cima da tela de login. */
       z-index: 1100;
     }
 
@@ -119,8 +113,6 @@
     .btn-primary { background: #186da5; color: white; }
     .btn-secondary { background: #91acc7; color: white; }
 
-    /* saida da tela de login: sem isso o usuario que abre o login por engano
-       fica preso, porque so havia "Entrar" e "Criar conta" */
     .btn-voltar-mapa {
       background: none;
       color: #555;
@@ -260,14 +252,13 @@
       margin-top: 4px;
     }
 
-    /* quem escreveu o artigo (RF004) */
     .autor-artigo {
       font-size: 13px;
       color: #666;
       margin-top: 2px;
     }
 
-    /* BANNER MODO LEITURA (RF009) */
+    /* BANNER MODO LEITURA */
     .readonly-banner {
       display: none;
       align-items: center;
@@ -290,7 +281,7 @@
       color: white;
     }
 
-    /* ERRO DE CARREGAMENTO DO MAPA (RF003, fluxo alternativo A1) */
+    /* ERRO MAPA */
     .map-error-screen {
       display: none;
       position: fixed;
@@ -307,196 +298,82 @@
       z-index: 900;
     }
 
-    .map-error-screen h3 {
-      color: #c0392b;
-      margin-bottom: 8px;
-    }
-
-    .map-error-screen p {
-      color: #555;
-      max-width: 400px;
-      margin-bottom: 16px;
-    }
-
+    .map-error-screen h3 { color: #c0392b; margin-bottom: 8px; }
+    .map-error-screen p { color: #555; max-width: 400px; margin-bottom: 16px; }
     .map-error-screen button {
-      background: #186da5;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
+      background: #186da5; color: white; border: none;
+      padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;
     }
 
     .tile-warning-banner {
-      display: none;
-      background: #e6a417;
-      color: white;
-      padding: 8px 20px;
-      font-size: 13px;
-      text-align: center;
+      display: none; background: #e6a417; color: white;
+      padding: 8px 20px; font-size: 13px; text-align: center;
     }
 
-    /* TELAS PEQUENAS, a barra de cima precisa caber num celular sem
-       estourar a largura. Mantemos a mesma altura de 60px, porque o mapa e
-       as telas de login se posicionam a partir dela. */
     @media (max-width: 600px) {
       .topbar { padding: 0 10px; gap: 8px; }
-
       .date-range { gap: 4px; flex: 1 1 auto; min-width: 0; }
-      .date-range span { display: none; } /* o "até" vira redundante no aperto */
-      .date-range input {
-        flex: 1 1 0;
-        min-width: 0;
-        padding: 4px;
-        font-size: 12px;
-      }
-
+      .date-range span { display: none; }
+      .date-range input { flex: 1 1 0; min-width: 0; padding: 4px; font-size: 12px; }
       .acoes-usuario { gap: 8px; }
       .meu-mapa { font-size: 11px; }
       .login { padding: 6px 8px; font-size: 12px; white-space: nowrap; }
-
       .overlay { padding: 12px; }
       .editor-body, .viewer-body { padding: 14px; }
     }
 
-    /* BOTÃO EDITAR DENTRO DO ARTIGO (RF007) */
-    .viewer-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
+    .viewer-actions { display: flex; align-items: center; gap: 14px; }
     .btn-editar-viewer {
-      background: #186da5;
-      color: white;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: inherit;
+      background: #186da5; color: white; border: none; padding: 6px 14px;
+      border-radius: 5px; cursor: pointer; font-size: 13px; font-family: inherit;
     }
 
-    /* POP-UP DE CONFIRMAÇÃO DE EXCLUSÃO (RF008) */
-    .confirm-overlay {
-      align-items: center;
-      z-index: 2500; /* acima do editor, que pode estar aberto por baixo */
-    }
-
+    /* CONFIRMAÇÃO */
+    .confirm-overlay { align-items: center; z-index: 2500; }
     .confirm-box {
-      background: white;
-      max-width: 380px;
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      padding: 26px 24px 20px;
-      text-align: center;
+      background: white; max-width: 380px; width: 100%; border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3); padding: 26px 24px 20px; text-align: center;
     }
-
-    .confirm-box p {
-      margin: 0 0 22px;
-      font-size: 16px;
-    }
-
-    .confirm-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
+    .confirm-box p { margin: 0 0 22px; font-size: 16px; }
+    .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
     .confirm-buttons button {
-      padding: 10px 22px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      color: white;
+      padding: 10px 22px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px; color: white;
     }
 
-    /* BOTAO DE CRIAR PIN (RF006)
-       O clique com o botao direito continua funcionando, mas quase ninguem
-       descobre sozinho, e em tela de toque nem existe. Este botao e o
-       caminho visivel para a mesma acao. */
+    /* CRIAR PIN */
     .criar-pin-box {
-      position: fixed;
-      right: 16px;
-      bottom: 28px; /* acima da atribuicao do OpenStreetMap */
-      z-index: 1000;
-      display: none;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
+      position: fixed; right: 16px; bottom: 28px; z-index: 1000;
+      display: none; flex-direction: column; align-items: flex-end; gap: 8px;
     }
-
     .btn-criar-pin {
-      background: #186da5;
-      color: white;
-      border: none;
-      border-radius: 24px;
-      padding: 12px 20px;
-      font-size: 15px;
-      font-family: inherit;
-      cursor: pointer;
+      background: #186da5; color: white; border: none; border-radius: 24px;
+      padding: 12px 20px; font-size: 15px; font-family: inherit; cursor: pointer;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
-
     .btn-criar-pin.cancelando { background: #999; }
-
     .dica-posicionamento {
-      display: none;
-      background: rgba(31,79,138,0.95);
-      color: white;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 13px;
-      max-width: 230px;
-      text-align: right;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      display: none; background: rgba(31,79,138,0.95); color: white;
+      padding: 8px 14px; border-radius: 6px; font-size: 13px; max-width: 230px;
+      text-align: right; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
-
-    /* durante o posicionamento a mira deixa claro que o proximo clique
-       escolhe o lugar do pin */
     .posicionando .leaflet-container { cursor: crosshair; }
 
-    /* TOASTS, mensagens de erro/sucesso não-bloqueantes (RNF04) */
+    /* TOASTS */
     .toast-container {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      z-index: 3000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      position: fixed; top: 70px; right: 20px; z-index: 3000;
+      display: flex; flex-direction: column; gap: 10px;
     }
-
     .toast {
-      min-width: 240px;
-      max-width: 340px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: white;
-      font-size: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-      opacity: 0;
-      transform: translateX(20px);
-      animation: toast-entrar 0.25s ease forwards;
+      min-width: 240px; max-width: 340px; padding: 12px 16px; border-radius: 8px;
+      color: white; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      opacity: 0; transform: translateX(20px); animation: toast-entrar 0.25s ease forwards;
     }
-
-    .toast-saindo {
-      animation: toast-sair 0.25s ease forwards;
-    }
-
+    .toast-saindo { animation: toast-sair 0.25s ease forwards; }
     .toast-sucesso { background: #1e8449; }
     .toast-erro { background: #c0392b; }
-
-    @keyframes toast-entrar {
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes toast-sair {
-      to { opacity: 0; transform: translateX(20px); }
-    }
+    @keyframes toast-entrar { to { opacity: 1; transform: translateX(0); } }
+    @keyframes toast-sair { to { opacity: 0; transform: translateX(20px); } }
   </style>
 </head>
 
@@ -512,66 +389,56 @@
     </div>
 
     <div class="acoes-usuario">
-      <!-- atalho para o próprio mapa público (RF009) -->
       <a id="meuMapaLink" class="meu-mapa" href="#">Meu mapa</a>
       <div class="login" id="authBtn" onclick="toggleAuth()">Realizar login</div>
     </div>
   </div>
 
-  <!-- BANNER MODO LEITURA (RF009) -->
+  <!-- BANNERS & OVERLAYS -->
   <div id="readonlyBanner" class="readonly-banner"></div>
 
-  <!-- AVISO DE TILES COM FALHA -->
   <div id="tileWarningBanner" class="tile-warning-banner">
     Algumas partes do mapa não carregaram. Verifique sua conexão com a internet.
   </div>
 
-  <!-- ERRO TOTAL DE CARREGAMENTO DO MAPA -->
   <div id="mapErrorScreen" class="map-error-screen">
     <h3>Não foi possível carregar o mapa</h3>
-    <p>Isso costuma acontecer por falta de conexão com a internet, já que o mapa depende de um provedor externo (OpenStreetMap). Verifique sua rede e tente novamente.</p>
+    <p>Isso costuma acontecer por falta de conexão com a internet. Verifique sua rede e tente novamente.</p>
     <button onclick="location.reload()">Tentar novamente</button>
   </div>
 
   <!-- MAPA -->
   <div id="map"></div>
 
-  <!-- BOTAO DE CRIAR PIN (RF006), alternativa visivel ao clique direito -->
+  <!-- BOTAO CRIAR PIN -->
   <div id="criarPinBox" class="criar-pin-box">
-    <div id="dicaPosicionamento" class="dica-posicionamento">
-      Clique no mapa para escolher o local do pin.
-    </div>
+    <div id="dicaPosicionamento" class="dica-posicionamento">Clique no mapa para escolher o local do pin.</div>
     <button id="btnCriarPin" class="btn-criar-pin" onclick="alternarModoPosicionamento()">Criar pin</button>
   </div>
 
-  <!-- TOASTS -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- LOGIN -->
+  <!-- LOGIN E CADASTRO -->
   <div id="loginScreen" class="screen">
     <div class="box">
       <h3>Login</h3>
       <input type="email" id="loginEmail" placeholder="Email">
       <input type="password" id="loginSenha" placeholder="Senha">
       <div class="error" id="loginError">E-mail ou senha incorretos.</div>
-
       <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
       <button class="btn-secondary" onclick="openRegister()">Criar conta</button>
       <button class="btn-voltar-mapa" onclick="voltarAoMapa()">Voltar ao mapa</button>
     </div>
   </div>
 
-  <!-- CADASTRO -->
   <div id="registerScreen" class="screen">
     <div class="box">
       <h3>Criar conta</h3>
-
-      <input type="text" id="regNome" placeholder="Nome">
+      <input type="text" id="regNome" placeholder="Nome / Identificador único">
       <input type="email" id="regEmail" placeholder="Email">
       <input type="password" id="regSenha" placeholder="Senha">
       <input type="password" id="regConfirma" placeholder="Confirmar senha">
       <div class="error" id="regError">Preencha todos os campos corretamente.</div>
-
       <button class="btn-primary" onclick="fazerCadastro()">Cadastrar</button>
       <button class="btn-secondary" onclick="openLogin()">Voltar</button>
     </div>
@@ -594,14 +461,11 @@
       <div class="editor-body">
         <label>Título</label>
         <input id="edTitulo" type="text" placeholder="Digite o título">
-
         <label>Data</label>
         <input id="edData" type="date">
-
         <label>Conteúdo</label>
         <textarea id="edConteudo" placeholder="Texto do artigo..."></textarea>
         <div class="hint">Use [img]url[/img], [video]url[/video] ou [audio]url[/audio] para inserir mídia.</div>
-
         <div class="editor-buttons">
           <button class="btn-delete" id="btnExcluirEditor" onclick="excluirPinAtual()">Excluir pin</button>
           <div>
@@ -609,7 +473,6 @@
             <button class="btn-save" onclick="salvarPin()">Salvar</button>
           </div>
         </div>
-
         <div class="preview" id="edPreview"></div>
       </div>
     </div>
@@ -621,7 +484,6 @@
       <div class="viewer-topbar">
         <span>Artigo</span>
         <div class="viewer-actions">
-          <!-- RF007: só aparece quando o leitor é o autor do pin -->
           <button id="btnEditarViewer" class="btn-editar-viewer" onclick="editarPinDoViewer()">Editar</button>
           <span class="close-btn" onclick="closeViewer()">&times;</span>
         </div>
@@ -630,7 +492,7 @@
     </div>
   </div>
 
-  <!-- CONFIRMAÇÃO DE EXCLUSÃO (RF008) -->
+  <!-- CONFIRMAÇÃO EXCLUSÃO -->
   <div id="confirmOverlay" class="overlay confirm-overlay">
     <div class="confirm-box">
       <p id="confirmMensagem">Deseja realmente excluir este PIN?</p>
@@ -643,7 +505,7 @@
 
   <script>
     // ============================================================
-    // SEGURANÇA: escapar o que foi escrito por usuários
+    // SEGURANÇA E HELPERS
     // ============================================================
     function escaparHtml(valor) {
       return String(valor ?? "")
@@ -664,35 +526,24 @@
       document.getElementById("mapErrorScreen").style.display = "flex";
     }
 
-    // ============================================================
-    // TOASTS: mensagens de erro/sucesso não-bloqueantes (RNF04)
-    // ============================================================
     function mostrarToast(mensagem, tipo) {
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
       toast.className = `toast toast-${tipo === "sucesso" ? "sucesso" : "erro"}`;
       toast.textContent = mensagem;
       container.appendChild(toast);
-
       setTimeout(() => {
         toast.classList.add("toast-saindo");
         setTimeout(() => toast.remove(), 250);
       }, 3500);
     }
 
-    // ============================================================
-    // POP-UP DE CONFIRMAÇÃO (RF008)
-    // ============================================================
     let resolverConfirmacao = null;
-
     function pedirConfirmacao(mensagem) {
       document.getElementById("confirmMensagem").textContent = mensagem;
       document.getElementById("confirmOverlay").style.display = "flex";
-      return new Promise((resolve) => {
-        resolverConfirmacao = resolve;
-      });
+      return new Promise((resolve) => resolverConfirmacao = resolve);
     }
-
     function responderConfirmacao(resposta) {
       document.getElementById("confirmOverlay").style.display = "none";
       if (resolverConfirmacao) {
@@ -705,7 +556,7 @@
 
   <script>
     // ============================================================
-    // ESTADO
+    // ESTADO E VARIÁVEIS PRINCIPAIS
     // ============================================================
     const API_BASE = window.location.origin;
 
@@ -723,13 +574,10 @@
     let contextLatLng = null;
     let contextPinId = null;
     let editingPinId = null;
-
     let toqueLongoDisparou = false;
 
-    // modo leitura (RF009): ativo quando na Home ("/") ou ao ver perfil de terceiros
     let modoLeitura = false;
     let usuarioVisualizadoId = null;
-
     let modoColecao = false;
     let colecaoAtual = null;
     let colecaoJaEnquadrada = false;
@@ -741,71 +589,11 @@
     }
 
     // ============================================================
-    // PERSISTÊNCIA DE LOGIN (localStorage)
+    // SESSÃO E UI
     // ============================================================
     function salvarSessao() {
       localStorage.setItem("token", token);
       localStorage.setItem("usuarioAtual", JSON.stringify(usuarioAtual));
-    }
-
-    function atualizarBarraUsuario() {
-      document.getElementById("authBtn").textContent = loggedIn
-        ? "Encerrar sessão"
-        : "Realizar login";
-
-      const meuMapa = document.getElementById("meuMapaLink");
-      if (loggedIn && usuarioAtual) {
-        meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
-        meuMapa.style.display = "inline";
-      } else {
-        meuMapa.style.display = "none";
-      }
-
-      atualizarBotaoCriarPin();
-    }
-
-    // ============================================================
-    // CRIAR PIN PELO BOTAO (RF006)
-    // ============================================================
-    let modoPosicionamento = false;
-
-    function atualizarBotaoCriarPin() {
-      const caixa = document.getElementById("criarPinBox");
-      if (!caixa) return;
-
-      // Opção A: Só ativa a criação de PIN se o utilizador estiver na sua própria rota
-      const podeCriar = loggedIn && !modoLeitura && !!map;
-      caixa.style.display = podeCriar ? "flex" : "none";
-      if (!podeCriar) sairModoPosicionamento();
-    }
-
-    function alternarModoPosicionamento() {
-      if (modoPosicionamento) {
-        sairModoPosicionamento();
-        return;
-      }
-
-      modoPosicionamento = true;
-      hideMenu();
-      document.body.classList.add("posicionando");
-      document.getElementById("dicaPosicionamento").style.display = "block";
-      const botao = document.getElementById("btnCriarPin");
-      botao.textContent = "Cancelar";
-      botao.classList.add("cancelando");
-    }
-
-    function sairModoPosicionamento() {
-      modoPosicionamento = false;
-      document.body.classList.remove("posicionando");
-
-      const dica = document.getElementById("dicaPosicionamento");
-      if (dica) dica.style.display = "none";
-
-      const botao = document.getElementById("btnCriarPin");
-      if (botao) {
-        botao.textContent = "Criar pin";
-        botao.classList.remove("cancelando");
-      }
     }
 
     function limparSessao() {
@@ -820,14 +608,24 @@
     function restaurarSessao() {
       const tokenSalvo = localStorage.getItem("token");
       const usuarioSalvo = localStorage.getItem("usuarioAtual");
-
       if (tokenSalvo && usuarioSalvo) {
         token = tokenSalvo;
         usuarioAtual = JSON.parse(usuarioSalvo);
         loggedIn = true;
       }
-
       atualizarBarraUsuario();
+    }
+
+    function atualizarBarraUsuario() {
+      document.getElementById("authBtn").textContent = loggedIn ? "Encerrar sessão" : "Realizar login";
+      const meuMapa = document.getElementById("meuMapaLink");
+      if (loggedIn && usuarioAtual) {
+        meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
+        meuMapa.style.display = "inline";
+      } else {
+        meuMapa.style.display = "none";
+      }
+      atualizarBotaoCriarPin();
     }
 
     function sessaoExpirada() {
@@ -837,12 +635,50 @@
     }
 
     // ============================================================
+    // BOTÃO DE CRIAR PIN
+    // ============================================================
+    let modoPosicionamento = false;
+
+    function atualizarBotaoCriarPin() {
+      const caixa = document.getElementById("criarPinBox");
+      if (!caixa) return;
+      const podeCriar = loggedIn && !modoLeitura && !!map;
+      caixa.style.display = podeCriar ? "flex" : "none";
+      if (!podeCriar) sairModoPosicionamento();
+    }
+
+    function alternarModoPosicionamento() {
+      if (modoPosicionamento) {
+        sairModoPosicionamento();
+        return;
+      }
+      modoPosicionamento = true;
+      hideMenu();
+      document.body.classList.add("posicionando");
+      document.getElementById("dicaPosicionamento").style.display = "block";
+      const botao = document.getElementById("btnCriarPin");
+      botao.textContent = "Cancelar";
+      botao.classList.add("cancelando");
+    }
+
+    function sairModoPosicionamento() {
+      modoPosicionamento = false;
+      document.body.classList.remove("posicionando");
+      const dica = document.getElementById("dicaPosicionamento");
+      if (dica) dica.style.display = "none";
+      const botao = document.getElementById("btnCriarPin");
+      if (botao) {
+        botao.textContent = "Criar pin";
+        botao.classList.remove("cancelando");
+      }
+    }
+
+    // ============================================================
     // MAPA
     // ============================================================
     var map;
     try {
       map = L.map('map').setView([-14.2350, -51.9253], 4);
-
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
@@ -864,7 +700,6 @@
 
     function parseConteudo(texto) {
       let html = escaparHtml(texto);
-
       html = html
         .replace(/\[img\](.*?)\[\/img\]/g, (_, url) => {
           const src = urlSegura(url);
@@ -879,7 +714,6 @@
           return src ? `<audio controls src="${src}"></audio>` : "";
         })
         .replace(/\n/g, '<br>');
-
       return html;
     }
 
@@ -889,17 +723,50 @@
       return `${dia}/${mes}/${ano}`;
     }
 
+    // ============================================================
+    // ROTAS, MODO LEITURA E REQUISIÇÕES
+    // ============================================================
+    function verificarModoLeitura() {
+      const partes = window.location.pathname.split("/").filter(Boolean);
+      const primeiro = partes[0];
+
+      // 1. Home (Rota raiz "/") - Mapa Global, sempre Somente Leitura.
+      if (!primeiro) {
+        modoLeitura = true;
+        usuarioVisualizadoId = null;
+        modoColecao = false;
+        colecaoAtual = null;
+        atualizarBotaoCriarPin();
+        return;
+      }
+
+      // 2. Assumimos incialmente que pode ser uma coleção (ex: /brasil).
+      // A confirmação se é um utilizador (slug) acontece através do fallback (Status 404).
+      modoColecao = true;
+      modoLeitura = true; // Por padrão trancamos a edição antes de validar os dados
+      colecaoAtual = primeiro.toLowerCase();
+      usuarioVisualizadoId = primeiro; 
+      
+      atualizarBotaoCriarPin();
+    }
+
+    function sairModoLeitura() {
+      window.location.href = "/";
+    }
+
     async function carregarPins() {
       if (modoColecao) {
         await carregarPinsDaColecao();
         return;
       }
-      if (modoLeitura && usuarioVisualizadoId) {
+      
+      // Se tivermos um ID de utilizador para ver (via url slug)
+      if (usuarioVisualizadoId) {
         await carregarPinsDoUsuario();
         return;
       }
 
-      // Se estiver na Home ("/") sem estar a visualizar um utilizador específico:
+      // Estar na Home sem estar logado
       if (!loggedIn) {
         pins = [];
         renderMarkers();
@@ -908,133 +775,37 @@
       }
 
       esconderBanner();
-
+      
+      // Home logado - carregar mapa global
       const inicio = document.getElementById("dataInicial").value;
       const fim = document.getElementById("dataFinal").value;
-
       const params = new URLSearchParams();
       if (inicio) params.append("dataInicial", inicio);
       if (fim) params.append("dataFinal", fim);
 
       try {
-        const resp = await fetch(`${API_BASE}/pins?${params.toString()}`, {
-          headers: headersAutenticados(),
-        });
-
-        if (resp.status === 401) {
-          sessaoExpirada();
-          return;
-        }
+        const resp = await fetch(`${API_BASE}/pins?${params.toString()}`, { headers: headersAutenticados() });
+        if (resp.status === 401) { sessaoExpirada(); return; }
         if (!resp.ok) throw new Error("Falha ao buscar pins");
         pins = await resp.json();
         renderMarkers();
       } catch (erro) {
         console.error(erro);
-        mostrarToast("Não foi possível carregar os pins. Verifique se o backend está rodando em " + API_BASE, "erro");
+        mostrarToast("Não foi possível carregar os pins globais.", "erro");
       }
-    }
-
-    // ============================================================
-    // MODO LEITURA E ROTAS (RF009)
-    // ============================================================
-    function verificarModoLeitura() {
-      const partes = window.location.pathname.split("/").filter(Boolean);
-      const primeiro = partes[0];
-
-      // Caso 1: Está na Home ("/")
-      if (!primeiro) {
-        modoLeitura = true;
-        usuarioVisualizadoId = null;
-        atualizarBotaoCriarPin();
-        return;
-      }
-
-      // Caso 2: Coleções temáticas (ex: /brasil)
-      if (!/^\d+$/.test(primeiro)) {
-        modoColecao = true;
-        modoLeitura = true;
-        colecaoAtual = primeiro.toLowerCase();
-        atualizarBotaoCriarPin();
-        return;
-      }
-
-      // Caso 3: Rota de utilizador (ex: /1 ou /fernando)
-      const usuarioId = primeiro;
-      usuarioVisualizadoId = usuarioId;
-
-      // Se o utilizador logado for o dono da rota, desativa o modo leitura para permitir criação
-      if (loggedIn && usuarioAtual && (String(usuarioAtual.id) === String(usuarioId) || usuarioAtual.url === usuarioId)) {
-        modoLeitura = false;
-      } else {
-        modoLeitura = true;
-      }
-
-      atualizarBotaoCriarPin();
-    }
-
-    function sairModoLeitura() {
-      window.location.href = "/";
-    }
-
-    async function carregarPinsDoUsuario() {
-      const inicio = document.getElementById("dataInicial").value;
-      const fim = document.getElementById("dataFinal").value;
-
-      const params = new URLSearchParams();
-      if (inicio) params.append("dataInicial", inicio);
-      if (fim) params.append("dataFinal", fim);
-
-      try {
-        const resp = await fetch(`${API_BASE}/usuarios/${usuarioVisualizadoId}/pins?${params.toString()}`);
-
-        if (resp.status === 404) {
-          const dados = await resp.json();
-          mostrarBannerLeitura(escaparHtml(dados.erro || "Usuário não encontrado. Verifique o endereço digitado."), true);
-          pins = [];
-          renderMarkers();
-          return;
-        }
-
-        if (!resp.ok) throw new Error("Falha ao buscar pins do usuário");
-
-        const dados = await resp.json();
-        pins = dados.pins;
-
-        if (loggedIn && usuarioAtual && (String(usuarioAtual.id) === String(dados.usuario.id) || usuarioAtual.url === usuarioVisualizadoId)) {
-          esconderBanner();
-        } else {
-          mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
-        }
-        
-        renderMarkers();
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Não foi possível carregar os registros deste usuário. Verifique se o backend está rodando em " + API_BASE, "erro");
-      }
-    }
-
-    // ============================================================
-    // COLEÇÃO TEMÁTICA
-    // ============================================================
-    function avaliarPermissaoDaColecao(donoId) {
-      const souDono = loggedIn && usuarioAtual && donoId != null && usuarioAtual.id === donoId;
-      modoLeitura = !souDono;
-      atualizarBotaoCriarPin();
     }
 
     async function carregarPinsDaColecao() {
       const inicio = document.getElementById("dataInicial").value;
       const fim = document.getElementById("dataFinal").value;
-
       const params = new URLSearchParams();
       if (inicio) params.append("dataInicial", inicio);
       if (fim) params.append("dataFinal", fim);
 
       try {
-        const resp = await fetch(
-          API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString()
-        );
+        const resp = await fetch(API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString());
 
+        // FALLBACK: Se 404, significa que a rota informada na verdade é de um utilizador (slug)
         if (resp.status === 404) {
           modoColecao = false;
           usuarioVisualizadoId = colecaoAtual;
@@ -1042,21 +813,26 @@
           await carregarPinsDoUsuario();
           return;
         }
+
         if (!resp.ok) throw new Error("Falha ao buscar a coleção");
 
         const dados = await resp.json();
-        pins = dados.pins;
+        pins = dados.pins || [];
 
-        if (dados.colecao.dataMinima) {
+        // Proteção contra respostas de coleções com formatações inesperadas do backend
+        if (dados.colecao && dados.colecao.dataMinima) {
           document.getElementById("dataInicial").min = dados.colecao.dataMinima;
           document.getElementById("dataFinal").min = dados.colecao.dataMinima;
         }
 
-        avaliarPermissaoDaColecao(dados.colecao.donoId);
+        const donoId = dados.colecao ? dados.colecao.donoId : null;
+        const souDono = loggedIn && usuarioAtual && donoId != null && String(usuarioAtual.id) === String(donoId);
+        modoLeitura = !souDono;
+        atualizarBotaoCriarPin();
 
-        const nome = escaparHtml(dados.colecao.nome);
+        const nomeColecao = dados.colecao && dados.colecao.nome ? escaparHtml(dados.colecao.nome) : escaparHtml(colecaoAtual);
         const quantos = pins.length === 1 ? "1 registro" : pins.length + " registros";
-        mostrarBannerLeitura("Coleção <b>" + nome + "</b>, " + quantos, false);
+        mostrarBannerLeitura("Coleção <b>" + nomeColecao + "</b>, " + quantos, false);
 
         renderMarkers();
 
@@ -1071,12 +847,54 @@
       }
     }
 
-    // Convite na Home ("/")
+    async function carregarPinsDoUsuario() {
+      const inicio = document.getElementById("dataInicial").value;
+      const fim = document.getElementById("dataFinal").value;
+      const params = new URLSearchParams();
+      if (inicio) params.append("dataInicial", inicio);
+      if (fim) params.append("dataFinal", fim);
+
+      try {
+        const resp = await fetch(`${API_BASE}/usuarios/${usuarioVisualizadoId}/pins?${params.toString()}`);
+
+        if (resp.status === 404) {
+          const dados = await resp.json();
+          mostrarBannerLeitura(escaparHtml(dados.erro || "Página não encontrada. Verifique o endereço digitado."), true);
+          pins = [];
+          renderMarkers();
+          return;
+        }
+
+        if (!resp.ok) throw new Error("Falha ao buscar pins do usuário");
+
+        const dados = await resp.json();
+        pins = dados.pins || [];
+
+        // Avaliações de acesso - Caso estejamos a ver a NOSSA própria rota!
+        const isOwner = loggedIn && usuarioAtual && 
+          (String(usuarioAtual.id) === String(dados.usuario.id) || String(usuarioAtual.url) === String(usuarioVisualizadoId));
+        
+        if (isOwner) {
+          modoLeitura = false; // Permite edição no seu mapa!
+          esconderBanner();
+        } else {
+          modoLeitura = true;
+          mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
+        }
+        atualizarBotaoCriarPin();
+        
+        renderMarkers();
+      } catch (erro) {
+        console.error(erro);
+        mostrarToast("Não foi possível carregar os registros deste utilizador.", "erro");
+      }
+    }
+
     function mostrarConviteDeLogin() {
       const banner = document.getElementById("readonlyBanner");
       if (loggedIn) {
         banner.innerHTML =
-          `Você está no mapa global. Para criar ou gerenciar seus PINs, acesse <a href="/${usuarioAtual.url || usuarioAtual.id}" class="voltar-link">Seu Mapa Particular</a>.`;
+          `Você está no mapa global (Modo Exploração). Para criar ou gerenciar seus PINs, acesse <a href="/${usuarioAtual.url || usuarioAtual.id}" class="voltar-link">Seu Mapa Particular</a>.`;
       } else {
         banner.innerHTML =
           'Bem-vindo ao PinPedia! <span class="voltar-link" onclick="openLogin()">Entre na sua conta</span> para acessar o seu mapa particular e criar registros.';
@@ -1097,9 +915,11 @@
       banner.style.display = "flex";
     }
 
+    // ============================================================
+    // RENDERIZAÇÃO NO MAPA E MENUS CONTEXTUAIS
+    // ============================================================
     function renderMarkers() {
       if (!map) return;
-
       Object.values(markers).forEach(m => map.removeLayer(m));
       markers = {};
 
@@ -1118,12 +938,10 @@
 
         marker.on('contextmenu', (e) => {
           if (modoLeitura) return;
-
           contextPinId = pin.id;
           contextLatLng = null;
 
-          const podeEditar = loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
-
+          const podeEditar = loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
           document.getElementById("createPinOpt").style.display = "none";
           document.getElementById("editPinOpt").style.display = podeEditar ? "block" : "none";
           document.getElementById("deletePinOpt").style.display = podeEditar ? "block" : "none";
@@ -1133,14 +951,10 @@
 
         const icone = marker.getElement();
         if (icone) icone.dataset.pinId = pin.id;
-
         markers[pin.id] = marker;
       });
     }
 
-    // ============================================================
-    // TOQUE LONGO (Mobile)
-    // ============================================================
     function abrirMenuPorToqueLongo(x, y, iconeDoMarcador) {
       if (iconeDoMarcador) {
         const pinId = Number(iconeDoMarcador.dataset.pinId);
@@ -1150,8 +964,8 @@
         contextPinId = pinId;
         contextLatLng = null;
 
-        const podeEditar = loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
-        if (!podeEditar) return;
+        const podeEditar = loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
+        if (!podeEditar || modoLeitura) return;
 
         document.getElementById("createPinOpt").style.display = "none";
         document.getElementById("editPinOpt").style.display = "block";
@@ -1161,29 +975,23 @@
 
         contextLatLng = map.containerPointToLatLng([x, y]);
         contextPinId = null;
-
         document.getElementById("createPinOpt").style.display = "block";
         document.getElementById("editPinOpt").style.display = "none";
         document.getElementById("deletePinOpt").style.display = "none";
       }
-
       showMenu(x, y);
     }
 
     if (map) {
       const containerMapa = map.getContainer();
       let timerToqueLongo = null;
-
       containerMapa.addEventListener("touchstart", (evento) => {
         if (modoLeitura || evento.touches.length !== 1) return;
-
         const toque = evento.touches[0];
         const area = containerMapa.getBoundingClientRect();
         const x = toque.clientX - area.left;
         const y = toque.clientY - area.top;
-        const icone = evento.target.closest
-          ? evento.target.closest(".leaflet-marker-icon")
-          : null;
+        const icone = evento.target.closest ? evento.target.closest(".leaflet-marker-icon") : null;
 
         timerToqueLongo = setTimeout(() => {
           timerToqueLongo = null;
@@ -1205,7 +1013,6 @@
 
     if (map) map.on("contextmenu", (e) => {
       if (modoLeitura) return;
-
       contextLatLng = e.latlng;
       contextPinId = null;
 
@@ -1229,52 +1036,22 @@
       }
     });
 
-    // ============================================================
-    // MENU CONTEXTUAL
-    // ============================================================
     const menu = document.getElementById("menu");
+    function showMenu(x, y) { menu.style.left = x + "px"; menu.style.top = y + "px"; menu.style.display = "block"; }
+    function hideMenu() { menu.style.display = "none"; }
 
-    function showMenu(x, y) {
-      menu.style.left = x + "px";
-      menu.style.top = y + "px";
-      menu.style.display = "block";
-    }
-
-    function hideMenu() {
-      menu.style.display = "none";
-    }
-
-    document.getElementById("createPinOpt").onclick = () => {
-      hideMenu();
-      openEditor(null);
-    };
-
-    document.getElementById("editPinOpt").onclick = () => {
-      hideMenu();
-      openEditor(contextPinId);
-    };
-
+    document.getElementById("createPinOpt").onclick = () => { hideMenu(); openEditor(null); };
+    document.getElementById("editPinOpt").onclick = () => { hideMenu(); openEditor(contextPinId); };
     document.getElementById("deletePinOpt").onclick = async () => {
       hideMenu();
       if (contextPinId === null) return;
       if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
 
       try {
-        const resp = await fetch(`${API_BASE}/pins/${contextPinId}`, {
-          method: "DELETE",
-          headers: headersAutenticados(),
-        });
+        const resp = await fetch(`${API_BASE}/pins/${contextPinId}`, { method: "DELETE", headers: headersAutenticados() });
         const dados = await resp.json();
-
-        if (resp.status === 401) {
-          sessaoExpirada();
-          return;
-        }
-        if (!resp.ok) {
-          mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro");
-          return;
-        }
-
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro"); return; }
         carregarPins();
         mostrarToast("Pin excluído com sucesso.", "sucesso");
       } catch (erro) {
@@ -1284,13 +1061,11 @@
     };
 
     // ============================================================
-    // EDITOR DE ARTIGO (RF006 / RF007)
+    // FORMULÁRIO DE ARTIGO (EDITOR) E LEITOR (VIEWER)
     // ============================================================
     const editorOverlay = document.getElementById("editorOverlay");
-
     async function openEditor(pinId) {
       editingPinId = pinId;
-
       const tituloInput = document.getElementById("edTitulo");
       const dataInput = document.getElementById("edData");
       const conteudoInput = document.getElementById("edConteudo");
@@ -1310,7 +1085,6 @@
           const resp = await fetch(`${API_BASE}/pins/${pinId}`);
           if (!resp.ok) throw new Error("Pin não encontrado");
           const pin = await resp.json();
-
           titleBar.textContent = "Editar artigo";
           tituloInput.value = pin.titulo;
           dataInput.value = pin.data;
@@ -1325,16 +1099,12 @@
       }
     }
 
-    function closeEditor() {
-      editorOverlay.style.display = "none";
-      editingPinId = null;
-    }
+    function closeEditor() { editorOverlay.style.display = "none"; editingPinId = null; }
 
     function atualizarPreview() {
       const titulo = document.getElementById("edTitulo").value;
       const dataRaw = document.getElementById("edData").value;
       const texto = document.getElementById("edConteudo").value;
-
       document.getElementById("edPreview").innerHTML = `
         <h2>${escaparHtml(titulo) || "(sem título)"}</h2>
         <small>${formatarData(dataRaw)}</small>
@@ -1358,42 +1128,22 @@
 
       try {
         let resp;
-
         if (editingPinId === null) {
           if (!contextLatLng) {
-            mostrarToast("Coordenada não capturada. Clique com o botão direito no mapa para criar um pin.", "erro");
+            mostrarToast("Coordenada não capturada. Clique no mapa para criar um pin.", "erro");
             return;
           }
-          const novoPin = {
-            titulo, data, texto,
-            latitude: contextLatLng.lat,
-            longitude: contextLatLng.lng,
-          };
-
+          const novoPin = { titulo, data, texto, latitude: contextLatLng.lat, longitude: contextLatLng.lng };
           if (modoColecao && colecaoAtual) novoPin.colecao = colecaoAtual;
 
-          resp = await fetch(`${API_BASE}/pins`, {
-            method: "POST",
-            headers: headersAutenticados(),
-            body: JSON.stringify(novoPin),
-          });
+          resp = await fetch(`${API_BASE}/pins`, { method: "POST", headers: headersAutenticados(), body: JSON.stringify(novoPin) });
         } else {
-          resp = await fetch(`${API_BASE}/pins/${editingPinId}`, {
-            method: "PUT",
-            headers: headersAutenticados(),
-            body: JSON.stringify({ titulo, data, texto }),
-          });
+          resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "PUT", headers: headersAutenticados(), body: JSON.stringify({ titulo, data, texto }) });
         }
 
         const dados = await resp.json();
-        if (resp.status === 401) {
-          sessaoExpirada();
-          return;
-        }
-        if (!resp.ok) {
-          mostrarToast(dados.erro || "Não foi possível salvar o pin.", "erro");
-          return;
-        }
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível salvar o pin.", "erro"); return; }
 
         const eraNovo = editingPinId === null;
         closeEditor();
@@ -1410,21 +1160,10 @@
       if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
 
       try {
-        const resp = await fetch(`${API_BASE}/pins/${editingPinId}`, {
-          method: "DELETE",
-          headers: headersAutenticados(),
-        });
+        const resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "DELETE", headers: headersAutenticados() });
         const dados = await resp.json();
-
-        if (resp.status === 401) {
-          sessaoExpirada();
-          return;
-        }
-        if (!resp.ok) {
-          mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro");
-          return;
-        }
-
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro"); return; }
         closeEditor();
         carregarPins();
         mostrarToast("Pin excluído com sucesso.", "sucesso");
@@ -1434,9 +1173,6 @@
       }
     }
 
-    // ============================================================
-    // VISUALIZADOR DE ARTIGO (RF004)
-    // ============================================================
     const viewerOverlay = document.getElementById("viewerOverlay");
     let viewingPinId = null;
 
@@ -1445,7 +1181,6 @@
         const resp = await fetch(`${API_BASE}/pins/${pinId}`);
         if (!resp.ok) throw new Error("Pin não encontrado");
         const pin = await resp.json();
-
         viewingPinId = pin.id;
 
         document.getElementById("viewerBody").innerHTML = `
@@ -1455,7 +1190,7 @@
           <div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>
         `;
 
-        const podeEditar = !modoLeitura && loggedIn && usuarioAtual && usuarioAtual.id === pin.autor_id;
+        const podeEditar = !modoLeitura && loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
         document.getElementById("btnEditarViewer").style.display = podeEditar ? "inline-block" : "none";
 
         viewerOverlay.style.display = "flex";
@@ -1465,11 +1200,7 @@
       }
     }
 
-    function closeViewer() {
-      viewerOverlay.style.display = "none";
-      viewingPinId = null;
-    }
-
+    function closeViewer() { viewerOverlay.style.display = "none"; viewingPinId = null; }
     function editarPinDoViewer() {
       const pinId = viewingPinId;
       closeViewer();
@@ -1477,11 +1208,13 @@
     }
 
     // ============================================================
-    // LOGIN E CADASTRO (RF001 e RF002)
+    // LOGIN E CADASTRO
     // ============================================================
     function toggleAuth() {
       if (loggedIn) {
         limparSessao();
+        // A deslogar, certificamos que passamos para modo de leitura na interface
+        verificarModoLeitura();
         carregarPins();
         mostrarToast("Sessão encerrada.", "sucesso");
       } else {
@@ -1506,21 +1239,12 @@
       document.getElementById("registerScreen").style.display = "flex";
     }
 
-    function voltarAoMapa() {
-      hideAllScreens();
-    }
+    function voltarAoMapa() { hideAllScreens(); }
 
     document.addEventListener("keydown", (evento) => {
       if (evento.key !== "Escape") return;
-
-      if (modoPosicionamento) {
-        sairModoPosicionamento();
-        return;
-      }
-
-      const telasAbertas = ["loginScreen", "registerScreen"].filter(
-        (id) => document.getElementById(id).style.display === "flex"
-      );
+      if (modoPosicionamento) { sairModoPosicionamento(); return; }
+      const telasAbertas = ["loginScreen", "registerScreen"].filter((id) => document.getElementById(id).style.display === "flex");
       if (telasAbertas.length > 0) voltarAoMapa();
     });
 
@@ -1534,20 +1258,13 @@
         erroBox.style.display = "block";
         return;
       }
-
       try {
         const resp = await fetch(`${API_BASE}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, senha }),
         });
         const dados = await resp.json();
-
-        if (!resp.ok) {
-          erroBox.textContent = dados.erro || "E-mail ou senha incorretos.";
-          erroBox.style.display = "block";
-          return;
-        }
+        if (!resp.ok) { erroBox.textContent = dados.erro || "E-mail ou senha incorretos."; erroBox.style.display = "block"; return; }
 
         token = dados.token;
         usuarioAtual = dados.usuario;
@@ -1577,26 +1294,18 @@
         erroBox.style.display = "block";
         return;
       }
-
       if (senha !== confirmarSenha) {
         erroBox.textContent = "As senhas não coincidem.";
         erroBox.style.display = "block";
         return;
       }
-
       try {
         const resp = await fetch(`${API_BASE}/usuarios`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nome, email, senha, confirmarSenha }),
         });
         const dados = await resp.json();
-
-        if (!resp.ok) {
-          erroBox.textContent = dados.erro || "Não foi possível cadastrar.";
-          erroBox.style.display = "block";
-          return;
-        }
+        if (!resp.ok) { erroBox.textContent = dados.erro || "Não foi possível cadastrar."; erroBox.style.display = "block"; return; }
 
         mostrarToast("Conta criada com sucesso! Faça login para continuar.", "sucesso");
         openLogin();
@@ -1608,7 +1317,7 @@
     }
 
     // ============================================================
-    // FILTRO POR DATA (RF005)
+    // FILTROS
     // ============================================================
     document.getElementById("dataInicial").addEventListener("change", carregarPins);
     document.getElementById("dataFinal").addEventListener("change", carregarPins);
