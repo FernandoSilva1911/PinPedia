@@ -9,366 +9,69 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: #1f2a36;
-    }
-
-    /* TOPBAR */
-    .topbar {
-      height: 60px;
-      background-color: #91acc7;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      position: relative;
-      z-index: 500;
-    }
-
-    .date-range {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .date-range input {
-      padding: 5px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    .acoes-usuario {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .meu-mapa {
-      display: none;
-      color: white;
-      font-size: 13px;
-      text-decoration: underline;
-      white-space: nowrap;
-    }
-
-    .login {
-      cursor: pointer;
-      background-color: #186da5;
-      padding: 8px 12px;
-      border-radius: 5px;
-      color: white;
-      user-select: none;
-    }
-
-    /* MAPA */
-    #map {
-      width: 100%;
-      height: calc(100vh - 60px);
-    }
-
-    /* TELAS DE LOGIN / CADASTRO */
-    .screen {
-      display: none;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      width: 100%;
-      height: calc(100vh - 60px);
-      background: #f2f5f9;
-      justify-content: center;
-      align-items: center;
-      z-index: 1100;
-    }
-
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      width: 300px;
-    }
-
-    .box input {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    .box button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
+    body { margin: 0; font-family: Arial, sans-serif; color: #1f2a36; }
+    .topbar { height: 60px; background-color: #91acc7; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: relative; z-index: 500; }
+    .date-range { display: flex; align-items: center; gap: 10px; }
+    .date-range input { padding: 5px; border-radius: 5px; border: none; }
+    .acoes-usuario { display: flex; align-items: center; gap: 12px; }
+    .meu-mapa { display: none; color: white; font-size: 13px; text-decoration: underline; white-space: nowrap; }
+    .login { cursor: pointer; background-color: #186da5; padding: 8px 12px; border-radius: 5px; color: white; user-select: none; }
+    #map { width: 100%; height: calc(100vh - 60px); }
+    .screen { display: none; position: fixed; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); background: #f2f5f9; justify-content: center; align-items: center; z-index: 1100; }
+    .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); width: 300px; }
+    .box input { width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    .box button { width: 100%; padding: 10px; margin-top: 5px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
     .btn-primary { background: #186da5; color: white; }
     .btn-secondary { background: #91acc7; color: white; }
-
-    .btn-voltar-mapa {
-      background: none;
-      color: #555;
-      text-decoration: underline;
-      margin-top: 12px;
-    }
-
-    .box .error {
-      color: #c0392b;
-      font-size: 13px;
-      margin-top: -6px;
-      margin-bottom: 8px;
-      display: none;
-    }
-
-    /* MENU CONTEXTUAL */
-    .context-menu {
-      position: absolute;
-      display: none;
-      background: #eaf3ff;
-      border: 1px solid #b6d4ff;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      z-index: 1000;
-      font-size: 14px;
-      min-width: 160px;
-      overflow: hidden;
-    }
-
-    .context-menu div {
-      padding: 10px;
-      cursor: pointer;
-      color: #1f4f8a;
-    }
-
-    .context-menu div:hover {
-      background: #cfe4ff;
-    }
-
-    /* OVERLAYS (EDITOR E VISUALIZADOR) */
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.45);
-      z-index: 2000;
-      justify-content: center;
-      align-items: flex-start;
-      overflow-y: auto;
-      padding: 40px 20px;
-    }
-
-    .editor-container, .viewer-container {
-      background: white;
-      max-width: 700px;
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      position: relative;
-    }
-
-    .editor-topbar, .viewer-topbar {
-      height: 50px;
-      background: #91acc7;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      border-radius: 10px 10px 0 0;
-      font-weight: bold;
-    }
-
-    .close-btn {
-      cursor: pointer;
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    .editor-body, .viewer-body {
-      padding: 20px;
-    }
-
+    .btn-voltar-mapa { background: none; color: #555; text-decoration: underline; margin-top: 12px; }
+    .box .error { color: #c0392b; font-size: 13px; margin-top: -6px; margin-bottom: 8px; display: none; }
+    .context-menu { position: absolute; display: none; background: #eaf3ff; border: 1px solid #b6d4ff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000; font-size: 14px; min-width: 160px; overflow: hidden; }
+    .context-menu div { padding: 10px; cursor: pointer; color: #1f4f8a; }
+    .context-menu div:hover { background: #cfe4ff; }
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 2000; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 40px 20px; }
+    .editor-container, .viewer-container { background: white; max-width: 700px; width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); position: relative; }
+    .editor-topbar, .viewer-topbar { height: 50px; background: #91acc7; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-radius: 10px 10px 0 0; font-weight: bold; }
+    .close-btn { cursor: pointer; font-size: 22px; line-height: 1; }
+    .editor-body, .viewer-body { padding: 20px; }
     label { display: block; margin-top: 10px; font-size: 13px; color: #555; }
-
-    input[type="text"], input[type="date"], textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      font-family: inherit;
-    }
-
+    input[type="text"], input[type="date"], textarea { width: 100%; padding: 10px; margin-top: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; font-family: inherit; }
     textarea { height: 160px; resize: vertical; }
-
-    .editor-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-    }
-
-    .editor-buttons button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      color: white;
-    }
-
+    .editor-buttons { display: flex; justify-content: space-between; margin-top: 15px; }
+    .editor-buttons button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: white; }
     .btn-delete { background: #c0392b; }
     .btn-save { background: #186da5; }
     .btn-cancel { background: #999; }
-
-    .preview {
-      margin-top: 25px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
-    }
-
+    .preview { margin-top: 25px; padding-top: 15px; border-top: 1px solid #ddd; }
     .preview img { max-width: 100%; margin-top: 10px; border-radius: 8px; }
     .preview iframe { width: 100%; height: 260px; margin-top: 10px; border: none; }
     .preview audio { width: 100%; margin-top: 10px; }
-
     .viewer-body img { max-width: 100%; border-radius: 8px; }
     .viewer-body iframe { width: 100%; height: 300px; border: none; }
     .viewer-body audio { width: 100%; }
-
-    .hint {
-      font-size: 12px;
-      color: #888;
-      margin-top: 4px;
-    }
-
-    .autor-artigo {
-      font-size: 13px;
-      color: #666;
-      margin-top: 2px;
-    }
-
-    /* BANNER MODO LEITURA */
-    .readonly-banner {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      background: #1f4f8a;
-      color: white;
-      padding: 10px 20px;
-      font-size: 14px;
-      position: relative;
-      z-index: 500;
-      text-align: center;
-    }
-
-    .readonly-banner .voltar-link {
-      cursor: pointer;
-      text-decoration: underline;
-      font-weight: bold;
-      white-space: nowrap;
-      color: white;
-    }
-
-    /* ERRO MAPA */
-    .map-error-screen {
-      display: none;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      width: 100%;
-      height: calc(100vh - 60px);
-      background: #f2f5f9;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-      z-index: 900;
-    }
-
+    .hint { font-size: 12px; color: #888; margin-top: 4px; }
+    .autor-artigo { font-size: 13px; color: #666; margin-top: 2px; }
+    .readonly-banner { display: none; align-items: center; justify-content: center; gap: 14px; background: #1f4f8a; color: white; padding: 10px 20px; font-size: 14px; position: relative; z-index: 500; text-align: center; }
+    .readonly-banner .voltar-link { cursor: pointer; text-decoration: underline; font-weight: bold; white-space: nowrap; color: white; }
+    .map-error-screen { display: none; position: fixed; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); background: #f2f5f9; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; z-index: 900; }
     .map-error-screen h3 { color: #c0392b; margin-bottom: 8px; }
     .map-error-screen p { color: #555; max-width: 400px; margin-bottom: 16px; }
-    .map-error-screen button {
-      background: #186da5; color: white; border: none;
-      padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;
-    }
-
-    .tile-warning-banner {
-      display: none; background: #e6a417; color: white;
-      padding: 8px 20px; font-size: 13px; text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      .topbar { padding: 0 10px; gap: 8px; }
-      .date-range { gap: 4px; flex: 1 1 auto; min-width: 0; }
-      .date-range span { display: none; }
-      .date-range input { flex: 1 1 0; min-width: 0; padding: 4px; font-size: 12px; }
-      .acoes-usuario { gap: 8px; }
-      .meu-mapa { font-size: 11px; }
-      .login { padding: 6px 8px; font-size: 12px; white-space: nowrap; }
-      .overlay { padding: 12px; }
-      .editor-body, .viewer-body { padding: 14px; }
-    }
-
+    .map-error-screen button { background: #186da5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .tile-warning-banner { display: none; background: #e6a417; color: white; padding: 8px 20px; font-size: 13px; text-align: center; }
+    @media (max-width: 600px) { .topbar { padding: 0 10px; gap: 8px; } .date-range { gap: 4px; flex: 1 1 auto; min-width: 0; } .date-range span { display: none; } .date-range input { flex: 1 1 0; min-width: 0; padding: 4px; font-size: 12px; } .acoes-usuario { gap: 8px; } .meu-mapa { font-size: 11px; } .login { padding: 6px 8px; font-size: 12px; white-space: nowrap; } .overlay { padding: 12px; } .editor-body, .viewer-body { padding: 14px; } }
     .viewer-actions { display: flex; align-items: center; gap: 14px; }
-    .btn-editar-viewer {
-      background: #186da5; color: white; border: none; padding: 6px 14px;
-      border-radius: 5px; cursor: pointer; font-size: 13px; font-family: inherit;
-    }
-
-    /* CONFIRMAÇÃO */
+    .btn-editar-viewer { background: #186da5; color: white; border: none; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-family: inherit; }
     .confirm-overlay { align-items: center; z-index: 2500; }
-    .confirm-box {
-      background: white; max-width: 380px; width: 100%; border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3); padding: 26px 24px 20px; text-align: center;
-    }
+    .confirm-box { background: white; max-width: 380px; width: 100%; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); padding: 26px 24px 20px; text-align: center; }
     .confirm-box p { margin: 0 0 22px; font-size: 16px; }
     .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
-    .confirm-buttons button {
-      padding: 10px 22px; border: none; border-radius: 6px;
-      cursor: pointer; font-size: 14px; color: white;
-    }
-
-    /* CRIAR PIN */
-    .criar-pin-box {
-      position: fixed; right: 16px; bottom: 28px; z-index: 1000;
-      display: none; flex-direction: column; align-items: flex-end; gap: 8px;
-    }
-    .btn-criar-pin {
-      background: #186da5; color: white; border: none; border-radius: 24px;
-      padding: 12px 20px; font-size: 15px; font-family: inherit; cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
+    .confirm-buttons button { padding: 10px 22px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: white; }
+    .criar-pin-box { position: fixed; right: 16px; bottom: 28px; z-index: 1000; display: none; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .btn-criar-pin { background: #186da5; color: white; border: none; border-radius: 24px; padding: 12px 20px; font-size: 15px; font-family: inherit; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
     .btn-criar-pin.cancelando { background: #999; }
-    .dica-posicionamento {
-      display: none; background: rgba(31,79,138,0.95); color: white;
-      padding: 8px 14px; border-radius: 6px; font-size: 13px; max-width: 230px;
-      text-align: right; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    }
+    .dica-posicionamento { display: none; background: rgba(31,79,138,0.95); color: white; padding: 8px 14px; border-radius: 6px; font-size: 13px; max-width: 230px; text-align: right; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
     .posicionando .leaflet-container { cursor: crosshair; }
-
-    /* TOASTS */
-    .toast-container {
-      position: fixed; top: 70px; right: 20px; z-index: 3000;
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .toast {
-      min-width: 240px; max-width: 340px; padding: 12px 16px; border-radius: 8px;
-      color: white; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-      opacity: 0; transform: translateX(20px); animation: toast-entrar 0.25s ease forwards;
-    }
+    .toast-container { position: fixed; top: 70px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+    .toast { min-width: 240px; max-width: 340px; padding: 12px 16px; border-radius: 8px; color: white; font-size: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.25); opacity: 0; transform: translateX(20px); animation: toast-entrar 0.25s ease forwards; }
     .toast-saindo { animation: toast-sair 0.25s ease forwards; }
     .toast-sucesso { background: #1e8449; }
     .toast-erro { background: #c0392b; }
@@ -378,8 +81,6 @@
 </head>
 
 <body>
-
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="date-range">
       <input type="date" id="dataInicial">
@@ -387,19 +88,15 @@
       <input type="date" id="dataFinal">
       <button class="btn-secondary" style="padding:6px 10px;border:none;border-radius:5px;cursor:pointer;" onclick="limparFiltro()">Limpar</button>
     </div>
-
     <div class="acoes-usuario">
       <a id="meuMapaLink" class="meu-mapa" href="#">Meu mapa</a>
       <div class="login" id="authBtn" onclick="toggleAuth()">Realizar login</div>
     </div>
   </div>
 
-  <!-- BANNERS & OVERLAYS -->
   <div id="readonlyBanner" class="readonly-banner"></div>
 
-  <div id="tileWarningBanner" class="tile-warning-banner">
-    Algumas partes do mapa não carregaram. Verifique sua conexão com a internet.
-  </div>
+  <div id="tileWarningBanner" class="tile-warning-banner">Algumas partes do mapa não carregaram. Verifique sua conexão com a internet.</div>
 
   <div id="mapErrorScreen" class="map-error-screen">
     <h3>Não foi possível carregar o mapa</h3>
@@ -407,10 +104,8 @@
     <button onclick="location.reload()">Tentar novamente</button>
   </div>
 
-  <!-- MAPA -->
   <div id="map"></div>
 
-  <!-- BOTAO CRIAR PIN -->
   <div id="criarPinBox" class="criar-pin-box">
     <div id="dicaPosicionamento" class="dica-posicionamento">Clique no mapa para escolher o local do pin.</div>
     <button id="btnCriarPin" class="btn-criar-pin" onclick="alternarModoPosicionamento()">Criar pin</button>
@@ -418,7 +113,6 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- LOGIN E CADASTRO -->
   <div id="loginScreen" class="screen">
     <div class="box">
       <h3>Login</h3>
@@ -444,14 +138,12 @@
     </div>
   </div>
 
-  <!-- MENU CONTEXTUAL -->
   <div id="menu" class="context-menu">
     <div id="createPinOpt">Criar pin</div>
     <div id="editPinOpt">Editar pin</div>
     <div id="deletePinOpt">Excluir pin</div>
   </div>
 
-  <!-- EDITOR DE ARTIGO -->
   <div id="editorOverlay" class="overlay">
     <div class="editor-container">
       <div class="editor-topbar">
@@ -478,7 +170,6 @@
     </div>
   </div>
 
-  <!-- VISUALIZADOR DE ARTIGO -->
   <div id="viewerOverlay" class="overlay">
     <div class="viewer-container">
       <div class="viewer-topbar">
@@ -492,7 +183,6 @@
     </div>
   </div>
 
-  <!-- CONFIRMAÇÃO EXCLUSÃO -->
   <div id="confirmOverlay" class="overlay confirm-overlay">
     <div class="confirm-box">
       <p id="confirmMensagem">Deseja realmente excluir este PIN?</p>
@@ -504,16 +194,8 @@
   </div>
 
   <script>
-    // ============================================================
-    // SEGURANÇA E HELPERS
-    // ============================================================
     function escaparHtml(valor) {
-      return String(valor ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+      return String(valor ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
     function urlSegura(url) {
@@ -546,31 +228,23 @@
     }
     function responderConfirmacao(resposta) {
       document.getElementById("confirmOverlay").style.display = "none";
-      if (resolverConfirmacao) {
-        resolverConfirmacao(resposta);
-        resolverConfirmacao = null;
-      }
+      if (resolverConfirmacao) { resolverConfirmacao(resposta); resolverConfirmacao = null; }
     }
   </script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js" onerror="mostrarErroCarregamentoMapa()"></script>
 
   <script>
-    // ============================================================
-    // ESTADO E VARIÁVEIS PRINCIPAIS
-    // ============================================================
     const API_BASE = window.location.origin;
 
     if (typeof L === "undefined") {
-      throw new Error("Leaflet não disponível. O mapa não pode ser inicializado.");
+      throw new Error("Leaflet não disponível.");
     }
 
     let token = null;
     let usuarioAtual = null;
     let loggedIn = false;
-
     let pins = [];
     let markers = {};
-
     let contextLatLng = null;
     let contextPinId = null;
     let editingPinId = null;
@@ -583,14 +257,9 @@
     let colecaoJaEnquadrada = false;
 
     function headersAutenticados() {
-      return token
-        ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
-        : { "Content-Type": "application/json" };
+      return token ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } : { "Content-Type": "application/json" };
     }
 
-    // ============================================================
-    // SESSÃO E UI
-    // ============================================================
     function salvarSessao() {
       localStorage.setItem("token", token);
       localStorage.setItem("usuarioAtual", JSON.stringify(usuarioAtual));
@@ -619,12 +288,28 @@
     function atualizarBarraUsuario() {
       document.getElementById("authBtn").textContent = loggedIn ? "Encerrar sessão" : "Realizar login";
       const meuMapa = document.getElementById("meuMapaLink");
+      const estaNoBrasil = window.location.pathname.toLowerCase() === "/brasil";
+
       if (loggedIn && usuarioAtual) {
-        meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
-        meuMapa.style.display = "inline";
+        if (estaNoBrasil) {
+          meuMapa.textContent = "Meu mapa";
+          meuMapa.href = `/${usuarioAtual.url || usuarioAtual.id}`;
+          meuMapa.style.display = "inline";
+        } else {
+          meuMapa.textContent = "Mapa Brasil";
+          meuMapa.href = "/Brasil";
+          meuMapa.style.display = "inline";
+        }
       } else {
-        meuMapa.style.display = "none";
+        if (!estaNoBrasil) {
+          meuMapa.textContent = "Mapa Brasil";
+          meuMapa.href = "/Brasil";
+          meuMapa.style.display = "inline";
+        } else {
+          meuMapa.style.display = "none";
+        }
       }
+
       atualizarBotaoCriarPin();
     }
 
@@ -634,11 +319,7 @@
       carregarPins();
     }
 
-    // ============================================================
-    // BOTÃO DE CRIAR PIN
-    // ============================================================
     let modoPosicionamento = false;
-
     function atualizarBotaoCriarPin() {
       const caixa = document.getElementById("criarPinBox");
       if (!caixa) return;
@@ -648,10 +329,7 @@
     }
 
     function alternarModoPosicionamento() {
-      if (modoPosicionamento) {
-        sairModoPosicionamento();
-        return;
-      }
+      if (modoPosicionamento) { sairModoPosicionamento(); return; }
       modoPosicionamento = true;
       hideMenu();
       document.body.classList.add("posicionando");
@@ -667,31 +345,19 @@
       const dica = document.getElementById("dicaPosicionamento");
       if (dica) dica.style.display = "none";
       const botao = document.getElementById("btnCriarPin");
-      if (botao) {
-        botao.textContent = "Criar pin";
-        botao.classList.remove("cancelando");
-      }
+      if (botao) { botao.textContent = "Criar pin"; botao.classList.remove("cancelando"); }
     }
 
-    // ============================================================
-    // MAPA
-    // ============================================================
     var map;
     try {
       map = L.map('map').setView([-14.2350, -51.9253], 4);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
       let avisoTileMostrado = false;
       map.on('tileerror', () => {
         if (avisoTileMostrado) return;
         avisoTileMostrado = true;
         document.getElementById("tileWarningBanner").style.display = "block";
-        setTimeout(() => {
-          document.getElementById("tileWarningBanner").style.display = "none";
-          avisoTileMostrado = false;
-        }, 8000);
+        setTimeout(() => { document.getElementById("tileWarningBanner").style.display = "none"; avisoTileMostrado = false; }, 8000);
       });
     } catch (erro) {
       console.error(erro);
@@ -700,19 +366,9 @@
 
     function parseConteudo(texto) {
       let html = escaparHtml(texto);
-      html = html
-        .replace(/\[img\](.*?)\[\/img\]/g, (_, url) => {
-          const src = urlSegura(url);
-          return src ? `<img src="${src}">` : "";
-        })
-        .replace(/\[video\](.*?)\[\/video\]/g, (_, url) => {
-          const src = urlSegura(url);
-          return src ? `<iframe src="${src}" allowfullscreen></iframe>` : "";
-        })
-        .replace(/\[audio\](.*?)\[\/audio\]/g, (_, url) => {
-          const src = urlSegura(url);
-          return src ? `<audio controls src="${src}"></audio>` : "";
-        })
+      html = html.replace(/\[img\](.*?)\[\/img\]/g, (_, url) => { const src = urlSegura(url); return src ? `<img src="${src}">` : ""; })
+        .replace(/\[video\](.*?)\[\/video\]/g, (_, url) => { const src = urlSegura(url); return src ? `<iframe src="${src}" allowfullscreen></iframe>` : ""; })
+        .replace(/\[audio\](.*?)\[\/audio\]/g, (_, url) => { const src = urlSegura(url); return src ? `<audio controls src="${src}"></audio>` : ""; })
         .replace(/\n/g, '<br>');
       return html;
     }
@@ -723,79 +379,47 @@
       return `${dia}/${mes}/${ano}`;
     }
 
-    // ============================================================
-    // ROTAS, MODO LEITURA E REQUISIÇÕES
-    // ============================================================
     function verificarModoLeitura() {
       const partes = window.location.pathname.split("/").filter(Boolean);
       const primeiro = partes[0];
 
-      // 1. Home (Rota raiz "/") - Mapa Global, sempre Somente Leitura.
       if (!primeiro) {
         modoLeitura = true;
         usuarioVisualizadoId = null;
         modoColecao = false;
         colecaoAtual = null;
-        atualizarBotaoCriarPin();
+        atualizarBarraUsuario();
         return;
       }
 
-      // 2. Assumimos incialmente que pode ser uma coleção (ex: /brasil).
-      // A confirmação se é um utilizador (slug) acontece através do fallback (Status 404).
       modoColecao = true;
-      modoLeitura = true; // Por padrão trancamos a edição antes de validar os dados
+      modoLeitura = true; 
       colecaoAtual = primeiro.toLowerCase();
       usuarioVisualizadoId = primeiro; 
-      
-      atualizarBotaoCriarPin();
+      atualizarBarraUsuario();
     }
 
-    function sairModoLeitura() {
-      window.location.href = "/";
-    }
+    function sairModoLeitura() { window.location.href = "/"; }
 
     async function carregarPins() {
-      if (modoColecao) {
-        await carregarPinsDaColecao();
-        return;
-      }
+      if (modoColecao) { await carregarPinsDaColecao(); return; }
+      if (usuarioVisualizadoId) { await carregarPinsDoUsuario(); return; }
       
-      // Se tivermos um ID de utilizador para ver (via url slug)
-      if (usuarioVisualizadoId) {
-        await carregarPinsDoUsuario();
-        return;
-      }
-
-      // Estar na Home sem estar logado
-      if (!loggedIn) {
-        pins = [];
-        renderMarkers();
-        mostrarConviteDeLogin();
-        return;
-      }
-
-      esconderBanner();
-      
-      // Home logado - carregar mapa global
-      const inicio = document.getElementById("dataInicial").value;
-      const fim = document.getElementById("dataFinal").value;
-      const params = new URLSearchParams();
-      if (inicio) params.append("dataInicial", inicio);
-      if (fim) params.append("dataFinal", fim);
-
-      try {
-        const resp = await fetch(`${API_BASE}/pins?${params.toString()}`, { headers: headersAutenticados() });
-        if (resp.status === 401) { sessaoExpirada(); return; }
-        if (!resp.ok) throw new Error("Falha ao buscar pins");
-        pins = await resp.json();
-        renderMarkers();
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Não foi possível carregar os pins globais.", "erro");
-      }
+      // Na Home ("/") NÃO deve aparecer nenhum PIN
+      pins = [];
+      renderMarkers();
+      mostrarConviteDeLogin();
     }
 
     async function carregarPinsDaColecao() {
+      // Ajuste para preencher automaticamente 22/04/1500 na rota /Brasil
+      if (colecaoAtual === "brasil") {
+        const campoDataInicial = document.getElementById("dataInicial");
+        if (!campoDataInicial.value) {
+          campoDataInicial.value = "1500-04-22";
+        }
+      }
+
       const inicio = document.getElementById("dataInicial").value;
       const fim = document.getElementById("dataFinal").value;
       const params = new URLSearchParams();
@@ -804,9 +428,11 @@
 
       try {
         const resp = await fetch(API_BASE + "/colecoes/" + colecaoAtual + "/pins?" + params.toString());
+        
+        const contentType = resp.headers.get("content-type");
+        const devolveuHTML = contentType && contentType.includes("text/html");
 
-        // FALLBACK: Se 404, significa que a rota informada na verdade é de um utilizador (slug)
-        if (resp.status === 404) {
+        if (resp.status === 404 || devolveuHTML) {
           modoColecao = false;
           usuarioVisualizadoId = colecaoAtual;
           colecaoAtual = null;
@@ -814,12 +440,12 @@
           return;
         }
 
-        if (!resp.ok) throw new Error("Falha ao buscar a coleção");
+        if (!resp.ok) throw new Error(`Falha HTTP: ${resp.status}`);
 
         const dados = await resp.json();
+        if (!dados) throw new Error("Resposta da API está vazia");
         pins = dados.pins || [];
 
-        // Proteção contra respostas de coleções com formatações inesperadas do backend
         if (dados.colecao && dados.colecao.dataMinima) {
           document.getElementById("dataInicial").min = dados.colecao.dataMinima;
           document.getElementById("dataFinal").min = dados.colecao.dataMinima;
@@ -830,7 +456,7 @@
         modoLeitura = !souDono;
         atualizarBotaoCriarPin();
 
-        const nomeColecao = dados.colecao && dados.colecao.nome ? escaparHtml(dados.colecao.nome) : escaparHtml(colecaoAtual);
+        const nomeColecao = (dados.colecao && dados.colecao.nome) ? escaparHtml(dados.colecao.nome) : escaparHtml(colecaoAtual);
         const quantos = pins.length === 1 ? "1 registro" : pins.length + " registros";
         mostrarBannerLeitura("Coleção <b>" + nomeColecao + "</b>, " + quantos, false);
 
@@ -842,8 +468,8 @@
           map.fitBounds(limites, { padding: [50, 50] });
         }
       } catch (erro) {
-        console.error(erro);
-        mostrarToast("Não foi possível carregar a coleção.", "erro");
+        console.error("Erro na coleção:", erro);
+        mostrarToast("Não foi possível carregar a coleção: " + erro.message, "erro");
       }
     }
 
@@ -857,57 +483,53 @@
       try {
         const resp = await fetch(`${API_BASE}/usuarios/${usuarioVisualizadoId}/pins?${params.toString()}`);
 
-        if (resp.status === 404) {
-          const dados = await resp.json();
-          mostrarBannerLeitura(escaparHtml(dados.erro || "Página não encontrada. Verifique o endereço digitado."), true);
+        const contentType = resp.headers.get("content-type");
+        const devolveuHTML = contentType && contentType.includes("text/html");
+
+        if (resp.status === 404 || devolveuHTML) {
+          mostrarBannerLeitura("Página não encontrada. Verifique o endereço digitado.", true);
           pins = [];
           renderMarkers();
           return;
         }
 
-        if (!resp.ok) throw new Error("Falha ao buscar pins do usuário");
+        if (!resp.ok) throw new Error(`Falha HTTP: ${resp.status}`);
 
         const dados = await resp.json();
+        if (!dados) throw new Error("Resposta da API está vazia");
         pins = dados.pins || [];
 
-        // Avaliações de acesso - Caso estejamos a ver a NOSSA própria rota!
-        const isOwner = loggedIn && usuarioAtual && 
+        const isOwner = loggedIn && usuarioAtual && dados.usuario &&
           (String(usuarioAtual.id) === String(dados.usuario.id) || String(usuarioAtual.url) === String(usuarioVisualizadoId));
         
         if (isOwner) {
-          modoLeitura = false; // Permite edição no seu mapa!
+          modoLeitura = false; 
           esconderBanner();
         } else {
           modoLeitura = true;
-          mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(dados.usuario.nome)}</b> (modo somente leitura)`, false);
+          const nomeUsr = dados.usuario ? dados.usuario.nome : usuarioVisualizadoId;
+          mostrarBannerLeitura(`Visualizando registros de <b>${escaparHtml(nomeUsr)}</b> (modo somente leitura)`, false);
         }
         atualizarBotaoCriarPin();
-        
         renderMarkers();
       } catch (erro) {
-        console.error(erro);
-        mostrarToast("Não foi possível carregar os registros deste utilizador.", "erro");
+        console.error("Erro no utilizador:", erro);
+        mostrarToast("Não foi possível carregar os registos deste utilizador.", "erro");
       }
     }
 
     function mostrarConviteDeLogin() {
       const banner = document.getElementById("readonlyBanner");
       if (loggedIn) {
-        banner.innerHTML =
-          `Você está no mapa global (Modo Exploração). Para criar ou gerenciar seus PINs, acesse <a href="/${usuarioAtual.url || usuarioAtual.id}" class="voltar-link">Seu Mapa Particular</a>.`;
+        banner.innerHTML = `Você está no mapa global (Home). Para criar ou gerenciar seus PINs, acesse <a href="/${usuarioAtual.url || usuarioAtual.id}" class="voltar-link">Seu Mapa Particular</a>.`;
       } else {
-        banner.innerHTML =
-          'Bem-vindo ao PinPedia! <span class="voltar-link" onclick="openLogin()">Entre na sua conta</span> para acessar o seu mapa particular e criar registros.';
+        banner.innerHTML = 'Bem-vindo ao PinPedia! <span class="voltar-link" onclick="openLogin()">Entre na sua conta</span> para acessar o seu mapa particular e criar registros.';
       }
       banner.style.background = "#1f4f8a";
       banner.style.display = "flex";
     }
 
-    function esconderBanner() {
-      const banner = document.getElementById("readonlyBanner");
-      if (banner) banner.style.display = "none";
-    }
-
+    function esconderBanner() { const banner = document.getElementById("readonlyBanner"); if (banner) banner.style.display = "none"; }
     function mostrarBannerLeitura(mensagem, erro) {
       const banner = document.getElementById("readonlyBanner");
       banner.innerHTML = `${mensagem} <span class="voltar-link" onclick="sairModoLeitura()">Ver mapa completo</span>`;
@@ -915,9 +537,6 @@
       banner.style.display = "flex";
     }
 
-    // ============================================================
-    // RENDERIZAÇÃO NO MAPA E MENUS CONTEXTUAIS
-    // ============================================================
     function renderMarkers() {
       if (!map) return;
       Object.values(markers).forEach(m => map.removeLayer(m));
@@ -925,27 +544,17 @@
 
       pins.forEach(pin => {
         const marker = L.marker([pin.latitude, pin.longitude]).addTo(map);
-
-        marker.bindTooltip(
-          `<b>Nome:</b> ${escaparHtml(pin.titulo)}<br><b>Data:</b> ${formatarData(pin.data)}<br><b>Latitude:</b> ${pin.latitude}<br><b>Longitude:</b> ${pin.longitude}`,
-          { direction: 'top', offset: [0, -10], sticky: true }
-        );
-
-        marker.on('click', () => {
-          if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
-          openViewer(pin.id);
-        });
-
+        marker.bindTooltip(`<b>Nome:</b> ${escaparHtml(pin.titulo)}<br><b>Data:</b> ${formatarData(pin.data)}<br><b>Latitude:</b> ${pin.latitude}<br><b>Longitude:</b> ${pin.longitude}`, { direction: 'top', offset: [0, -10], sticky: true });
+        marker.on('click', () => { if (toqueLongoDisparou) { toqueLongoDisparou = false; return; } openViewer(pin.id); });
+        
         marker.on('contextmenu', (e) => {
           if (modoLeitura) return;
           contextPinId = pin.id;
           contextLatLng = null;
-
           const podeEditar = loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
           document.getElementById("createPinOpt").style.display = "none";
           document.getElementById("editPinOpt").style.display = podeEditar ? "block" : "none";
           document.getElementById("deletePinOpt").style.display = podeEditar ? "block" : "none";
-
           showMenu(e.containerPoint.x, e.containerPoint.y);
         });
 
@@ -960,19 +569,15 @@
         const pinId = Number(iconeDoMarcador.dataset.pinId);
         const pin = pins.find((p) => p.id === pinId);
         if (!pin) return;
-
         contextPinId = pinId;
         contextLatLng = null;
-
         const podeEditar = loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
         if (!podeEditar || modoLeitura) return;
-
         document.getElementById("createPinOpt").style.display = "none";
         document.getElementById("editPinOpt").style.display = "block";
         document.getElementById("deletePinOpt").style.display = "block";
       } else {
         if (!loggedIn || modoLeitura) return;
-
         contextLatLng = map.containerPointToLatLng([x, y]);
         contextPinId = null;
         document.getElementById("createPinOpt").style.display = "block";
@@ -992,20 +597,9 @@
         const x = toque.clientX - area.left;
         const y = toque.clientY - area.top;
         const icone = evento.target.closest ? evento.target.closest(".leaflet-marker-icon") : null;
-
-        timerToqueLongo = setTimeout(() => {
-          timerToqueLongo = null;
-          toqueLongoDisparou = true;
-          abrirMenuPorToqueLongo(x, y, icone);
-        }, 600);
+        timerToqueLongo = setTimeout(() => { timerToqueLongo = null; toqueLongoDisparou = true; abrirMenuPorToqueLongo(x, y, icone); }, 600);
       }, { passive: true });
-
-      const cancelarToqueLongo = () => {
-        if (timerToqueLongo) {
-          clearTimeout(timerToqueLongo);
-          timerToqueLongo = null;
-        }
-      };
+      const cancelarToqueLongo = () => { if (timerToqueLongo) { clearTimeout(timerToqueLongo); timerToqueLongo = null; } };
       containerMapa.addEventListener("touchmove", cancelarToqueLongo, { passive: true });
       containerMapa.addEventListener("touchend", cancelarToqueLongo);
       containerMapa.addEventListener("touchcancel", cancelarToqueLongo);
@@ -1015,11 +609,9 @@
       if (modoLeitura) return;
       contextLatLng = e.latlng;
       contextPinId = null;
-
       document.getElementById("createPinOpt").style.display = loggedIn ? "block" : "none";
       document.getElementById("editPinOpt").style.display = "none";
       document.getElementById("deletePinOpt").style.display = "none";
-
       if (!loggedIn) return;
       showMenu(e.containerPoint.x, e.containerPoint.y);
     });
@@ -1027,26 +619,18 @@
     if (map) map.on("click", (e) => {
       if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
       hideMenu();
-
-      if (modoPosicionamento) {
-        contextLatLng = e.latlng;
-        contextPinId = null;
-        sairModoPosicionamento();
-        openEditor(null);
-      }
+      if (modoPosicionamento) { contextLatLng = e.latlng; contextPinId = null; sairModoPosicionamento(); openEditor(null); }
     });
 
     const menu = document.getElementById("menu");
     function showMenu(x, y) { menu.style.left = x + "px"; menu.style.top = y + "px"; menu.style.display = "block"; }
     function hideMenu() { menu.style.display = "none"; }
-
     document.getElementById("createPinOpt").onclick = () => { hideMenu(); openEditor(null); };
     document.getElementById("editPinOpt").onclick = () => { hideMenu(); openEditor(contextPinId); };
     document.getElementById("deletePinOpt").onclick = async () => {
       hideMenu();
       if (contextPinId === null) return;
       if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
-
       try {
         const resp = await fetch(`${API_BASE}/pins/${contextPinId}`, { method: "DELETE", headers: headersAutenticados() });
         const dados = await resp.json();
@@ -1054,15 +638,9 @@
         if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro"); return; }
         carregarPins();
         mostrarToast("Pin excluído com sucesso.", "sucesso");
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Erro de conexão com o backend.", "erro");
-      }
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o backend.", "erro"); }
     };
 
-    // ============================================================
-    // FORMULÁRIO DE ARTIGO (EDITOR) E LEITOR (VIEWER)
-    // ============================================================
     const editorOverlay = document.getElementById("editorOverlay");
     async function openEditor(pinId) {
       editingPinId = pinId;
@@ -1092,10 +670,7 @@
           excluirBtn.style.display = "block";
           atualizarPreview();
           editorOverlay.style.display = "flex";
-        } catch (erro) {
-          console.error(erro);
-          mostrarToast("Não foi possível carregar o pin para edição.", "erro");
-        }
+        } catch (erro) { console.error(erro); mostrarToast("Não foi possível carregar o pin para edição.", "erro"); }
       }
     }
 
@@ -1105,60 +680,40 @@
       const titulo = document.getElementById("edTitulo").value;
       const dataRaw = document.getElementById("edData").value;
       const texto = document.getElementById("edConteudo").value;
-      document.getElementById("edPreview").innerHTML = `
-        <h2>${escaparHtml(titulo) || "(sem título)"}</h2>
-        <small>${formatarData(dataRaw)}</small>
-        <p style="margin-top:15px;">${parseConteudo(texto)}</p>
-      `;
+      document.getElementById("edPreview").innerHTML = `<h2>${escaparHtml(titulo) || "(sem título)"}</h2><small>${formatarData(dataRaw)}</small><p style="margin-top:15px;">${parseConteudo(texto)}</p>`;
     }
 
-    ["edTitulo", "edData", "edConteudo"].forEach(id => {
-      document.getElementById(id).addEventListener("input", atualizarPreview);
-    });
+    ["edTitulo", "edData", "edConteudo"].forEach(id => { document.getElementById(id).addEventListener("input", atualizarPreview); });
 
     async function salvarPin() {
       const titulo = document.getElementById("edTitulo").value.trim();
       const data = document.getElementById("edData").value;
       const texto = document.getElementById("edConteudo").value.trim();
 
-      if (!titulo || !data || !texto) {
-        mostrarToast("Preencha título, data e conteúdo.", "erro");
-        return;
-      }
-
+      if (!titulo || !data || !texto) { mostrarToast("Preencha título, data e conteúdo.", "erro"); return; }
       try {
         let resp;
         if (editingPinId === null) {
-          if (!contextLatLng) {
-            mostrarToast("Coordenada não capturada. Clique no mapa para criar um pin.", "erro");
-            return;
-          }
+          if (!contextLatLng) { mostrarToast("Coordenada não capturada.", "erro"); return; }
           const novoPin = { titulo, data, texto, latitude: contextLatLng.lat, longitude: contextLatLng.lng };
           if (modoColecao && colecaoAtual) novoPin.colecao = colecaoAtual;
-
           resp = await fetch(`${API_BASE}/pins`, { method: "POST", headers: headersAutenticados(), body: JSON.stringify(novoPin) });
         } else {
           resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "PUT", headers: headersAutenticados(), body: JSON.stringify({ titulo, data, texto }) });
         }
-
         const dados = await resp.json();
         if (resp.status === 401) { sessaoExpirada(); return; }
         if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível salvar o pin.", "erro"); return; }
-
         const eraNovo = editingPinId === null;
         closeEditor();
         carregarPins();
         mostrarToast(eraNovo ? "Pin criado com sucesso." : "Pin atualizado com sucesso.", "sucesso");
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Erro de conexão com o backend.", "erro");
-      }
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o backend.", "erro"); }
     }
 
     async function excluirPinAtual() {
       if (editingPinId === null) return;
       if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
-
       try {
         const resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "DELETE", headers: headersAutenticados() });
         const dados = await resp.json();
@@ -1167,10 +722,7 @@
         closeEditor();
         carregarPins();
         mostrarToast("Pin excluído com sucesso.", "sucesso");
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Erro de conexão com o backend.", "erro");
-      }
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o backend.", "erro"); }
     }
 
     const viewerOverlay = document.getElementById("viewerOverlay");
@@ -1182,63 +734,24 @@
         if (!resp.ok) throw new Error("Pin não encontrado");
         const pin = await resp.json();
         viewingPinId = pin.id;
-
-        document.getElementById("viewerBody").innerHTML = `
-          <h2 style="color:#186da5;">${escaparHtml(pin.titulo)}</h2>
-          <small>${formatarData(pin.data)}</small>
-          ${pin.autor_nome ? `<div class="autor-artigo">registrado por <b>${escaparHtml(pin.autor_nome)}</b></div>` : ""}
-          <div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>
-        `;
-
+        document.getElementById("viewerBody").innerHTML = `<h2 style="color:#186da5;">${escaparHtml(pin.titulo)}</h2><small>${formatarData(pin.data)}</small>${pin.autor_nome ? `<div class="autor-artigo">registrado por <b>${escaparHtml(pin.autor_nome)}</b></div>` : ""}<div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>`;
         const podeEditar = !modoLeitura && loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
         document.getElementById("btnEditarViewer").style.display = podeEditar ? "inline-block" : "none";
-
         viewerOverlay.style.display = "flex";
-      } catch (erro) {
-        console.error(erro);
-        mostrarToast("Não foi possível carregar o artigo.", "erro");
-      }
+      } catch (erro) { console.error(erro); mostrarToast("Não foi possível carregar o artigo.", "erro"); }
     }
 
     function closeViewer() { viewerOverlay.style.display = "none"; viewingPinId = null; }
-    function editarPinDoViewer() {
-      const pinId = viewingPinId;
-      closeViewer();
-      if (pinId !== null) openEditor(pinId);
-    }
+    function editarPinDoViewer() { const pinId = viewingPinId; closeViewer(); if (pinId !== null) openEditor(pinId); }
 
-    // ============================================================
-    // LOGIN E CADASTRO
-    // ============================================================
     function toggleAuth() {
-      if (loggedIn) {
-        limparSessao();
-        // A deslogar, certificamos que passamos para modo de leitura na interface
-        verificarModoLeitura();
-        carregarPins();
-        mostrarToast("Sessão encerrada.", "sucesso");
-      } else {
-        openLogin();
-      }
+      if (loggedIn) { limparSessao(); verificarModoLeitura(); carregarPins(); mostrarToast("Sessão encerrada.", "sucesso"); }
+      else { openLogin(); }
     }
 
-    function hideAllScreens() {
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("registerScreen").style.display = "none";
-    }
-
-    function openLogin() {
-      hideAllScreens();
-      document.getElementById("loginError").style.display = "none";
-      document.getElementById("loginScreen").style.display = "flex";
-    }
-
-    function openRegister() {
-      hideAllScreens();
-      document.getElementById("regError").style.display = "none";
-      document.getElementById("registerScreen").style.display = "flex";
-    }
-
+    function hideAllScreens() { document.getElementById("loginScreen").style.display = "none"; document.getElementById("registerScreen").style.display = "none"; }
+    function openLogin() { hideAllScreens(); document.getElementById("loginError").style.display = "none"; document.getElementById("loginScreen").style.display = "flex"; }
+    function openRegister() { hideAllScreens(); document.getElementById("regError").style.display = "none"; document.getElementById("registerScreen").style.display = "flex"; }
     function voltarAoMapa() { hideAllScreens(); }
 
     document.addEventListener("keydown", (evento) => {
@@ -1252,34 +765,15 @@
       const email = document.getElementById("loginEmail").value.trim();
       const senha = document.getElementById("loginSenha").value;
       const erroBox = document.getElementById("loginError");
-
-      if (!email || !senha) {
-        erroBox.textContent = "Preencha e-mail e senha.";
-        erroBox.style.display = "block";
-        return;
-      }
+      if (!email || !senha) { erroBox.textContent = "Preencha e-mail e senha."; erroBox.style.display = "block"; return; }
       try {
-        const resp = await fetch(`${API_BASE}/login`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, senha }),
-        });
+        const resp = await fetch(`${API_BASE}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, senha }), });
         const dados = await resp.json();
         if (!resp.ok) { erroBox.textContent = dados.erro || "E-mail ou senha incorretos."; erroBox.style.display = "block"; return; }
-
-        token = dados.token;
-        usuarioAtual = dados.usuario;
-        loggedIn = true;
-        salvarSessao();
-        atualizarBarraUsuario();
-        verificarModoLeitura();
-        hideAllScreens();
-        carregarPins();
+        token = dados.token; usuarioAtual = dados.usuario; loggedIn = true;
+        salvarSessao(); atualizarBarraUsuario(); verificarModoLeitura(); hideAllScreens(); carregarPins();
         mostrarToast(`Login realizado com sucesso. Bem-vindo(a), ${usuarioAtual.nome}!`, "sucesso");
-      } catch (erro) {
-        console.error(erro);
-        erroBox.textContent = "Erro de conexão com o backend.";
-        erroBox.style.display = "block";
-      }
+      } catch (erro) { console.error(erro); erroBox.textContent = "Erro de conexão com o backend."; erroBox.style.display = "block"; }
     }
 
     async function fazerCadastro() {
@@ -1288,53 +782,23 @@
       const senha = document.getElementById("regSenha").value;
       const confirmarSenha = document.getElementById("regConfirma").value;
       const erroBox = document.getElementById("regError");
-
-      if (!nome || !email || !senha || !confirmarSenha) {
-        erroBox.textContent = "Preencha todos os campos.";
-        erroBox.style.display = "block";
-        return;
-      }
-      if (senha !== confirmarSenha) {
-        erroBox.textContent = "As senhas não coincidem.";
-        erroBox.style.display = "block";
-        return;
-      }
+      if (!nome || !email || !senha || !confirmarSenha) { erroBox.textContent = "Preencha todos os campos."; erroBox.style.display = "block"; return; }
+      if (senha !== confirmarSenha) { erroBox.textContent = "As senhas não coincidem."; erroBox.style.display = "block"; return; }
       try {
-        const resp = await fetch(`${API_BASE}/usuarios`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, email, senha, confirmarSenha }),
-        });
+        const resp = await fetch(`${API_BASE}/usuarios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome, email, senha, confirmarSenha }), });
         const dados = await resp.json();
         if (!resp.ok) { erroBox.textContent = dados.erro || "Não foi possível cadastrar."; erroBox.style.display = "block"; return; }
-
-        mostrarToast("Conta criada com sucesso! Faça login para continuar.", "sucesso");
-        openLogin();
-      } catch (erro) {
-        console.error(erro);
-        erroBox.textContent = "Erro de conexão com o backend.";
-        erroBox.style.display = "block";
-      }
+        mostrarToast("Conta criada com sucesso! Faça login para continuar.", "sucesso"); openLogin();
+      } catch (erro) { console.error(erro); erroBox.textContent = "Erro de conexão com o backend."; erroBox.style.display = "block"; }
     }
 
-    // ============================================================
-    // FILTROS
-    // ============================================================
     document.getElementById("dataInicial").addEventListener("change", carregarPins);
     document.getElementById("dataFinal").addEventListener("change", carregarPins);
+    function limparFiltro() { document.getElementById("dataInicial").value = ""; document.getElementById("dataFinal").value = ""; carregarPins(); }
 
-    function limparFiltro() {
-      document.getElementById("dataInicial").value = "";
-      document.getElementById("dataFinal").value = "";
-      carregarPins();
-    }
-
-    // ============================================================
-    // INICIALIZAÇÃO CORRIGIDA
-    // ============================================================
     restaurarSessao();
     verificarModoLeitura();
     if (map) carregarPins();
   </script>
-
 </body>
 </html>
