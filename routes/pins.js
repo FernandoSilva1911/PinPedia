@@ -267,4 +267,53 @@ router.delete("/pins/:id", exigirAutenticacao, async (req, res) => {
   }
 });
 
+// ============================================================
+// POST /colecoes/brasil/upload: Importação em lote de PINs via JSON
+// Protegida: Apenas a conta BrasilADM (ID 16) pode importar arquivos.
+// ============================================================
+router.post("/colecoes/brasil/upload", exigirAutenticacao, async (req, res) => {
+  // Trava de segurança: apenas o ID 16 (BrasilADM)
+  const ID_ADMIN = 16;
+
+  if (req.usuario.id !== ID_ADMIN) {
+    return res.status(403).json({
+      erro: "Acesso negado. Apenas o administrador BrasilADM pode importar arquivos para esta rota."
+    });
+  }
+
+  const pinsArray = req.body;
+
+  if (!Array.isArray(pinsArray) || pinsArray.length === 0) {
+    return res.status(400).json({ erro: "O corpo da requisição deve conter um Array de PINs." });
+  }
+
+  try {
+    // Insere os PINs no Supabase vinculados ao ID 16 e à coleção 'brasil'
+    const insercoes = pinsArray.map(pin => {
+      return db.query(
+        `INSERT INTO pins (titulo, data, latitude, longitude, texto, autor_id, colecao)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          pin.titulo,
+          pin.data,
+          pin.latitude,
+          pin.longitude,
+          pin.texto,
+          req.usuario.id,
+          'brasil'
+        ]
+      );
+    });
+
+    await Promise.all(insercoes);
+
+    return res.status(201).json({
+      mensagem: `${pinsArray.length} PINs cadastrados com sucesso na rota Brasil pelo BrasilADM!`
+    });
+  } catch (erro) {
+    console.error("Erro no upload Brasil:", erro);
+    return res.status(500).json({ erro: "Erro interno ao salvar os PINs no banco de dados." });
+  }
+});
+
 module.exports = router;
