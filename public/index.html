@@ -358,9 +358,9 @@
 
     function parseConteudo(texto) {
       let html = escaparHtml(texto);
-      html = html.replace(/[img](.*?)\[\/img\]/g, (_, url) => { const src = urlSegura(url); return src ? `<img src="${src}">` : ""; })
-        .replace(/[video](.*?)\[\/video\]/g, (_, url) => { const src = urlSegura(url); return src ? `<iframe src="${src}" allowfullscreen></iframe>` : ""; })
-        .replace(/[audio](.*?)\[\/audio\]/g, (_, url) => { const src = urlSegura(url); return src ? `<audio controls src="${src}"></audio>` : ""; })
+      html = html.replace(/\[img\](.*?)\[\/img\]/g, (_, url) => { const src = urlSegura(url); return src ? `<img src="${src}">` : ""; })
+        .replace(/\[video\](.*?)\[\/video\]/g, (_, url) => { const src = urlSegura(url); return src ? `<iframe src="${src}" allowfullscreen></iframe>` : ""; })
+        .replace(/\[audio\](.*?)\[\/audio\]/g, (_, url) => { const src = urlSegura(url); return src ? `<audio controls src="${src}"></audio>` : ""; })
         .replace(/\n/g, '<br>');
       return html;
     }
@@ -424,6 +424,14 @@
     }
 
     async function carregarPinsDaColecao() {
+      const piso = colecaoAtual === "brasil" ? "1500-04-22" : "";
+      const campoDataInicial = document.getElementById("dataInicial");
+      if (piso) {
+        // só define o mínimo do calendário; o valor digitado nunca é alterado aqui
+        campoDataInicial.min = piso;
+        document.getElementById("dataFinal").min = piso;
+      }
+
       const params = parametrosDoFiltro();
 
       try {
@@ -445,6 +453,11 @@
         const dados = await resp.json();
         if (!dados) throw new Error("Resposta da API está vazia");
         pins = dados.pins || [];
+
+        if (dados.colecao && dados.colecao.dataMinima) {
+          document.getElementById("dataInicial").min = dados.colecao.dataMinima;
+          document.getElementById("dataFinal").min = dados.colecao.dataMinima;
+        }
 
         const donoId = dados.colecao ? dados.colecao.donoId : null;
         const souDono = loggedIn && usuarioAtual && donoId != null && String(usuarioAtual.id) === String(donoId);
@@ -574,3 +587,236 @@
         contextPinId = null;
         document.getElementById("createPinOpt").style.display = "block";
         document.getElementById("editPinOpt").style.display = "none";
+        document.getElementById("deletePinOpt").style.display = "none";
+      }
+      showMenu(x, y);
+    }
+
+    if (map) {
+      const containerMapa = map.getContainer();
+      let timerToqueLongo = null;
+      containerMapa.addEventListener("touchstart", (evento) => {
+        if (modoLeitura || evento.touches.length !== 1) return;
+        const toque = evento.touches[0];
+        const area = containerMapa.getBoundingClientRect();
+        const x = toque.clientX - area.left;
+        const y = toque.clientY - area.top;
+        const icone = evento.target.closest ? evento.target.closest(".leaflet-marker-icon") : null;
+        timerToqueLongo = setTimeout(() => { timerToqueLongo = null; toqueLongoDisparou = true; abrirMenuPorToqueLongo(x, y, icone); }, 600);
+      }, { passive: true });
+      const cancelarToqueLongo = () => { if (timerToqueLongo) { clearTimeout(timerToqueLongo); timerToqueLongo = null; } };
+      containerMapa.addEventListener("touchmove", cancelarToqueLongo, { passive: true });
+      containerMapa.addEventListener("touchend", cancelarToqueLongo);
+      containerMapa.addEventListener("touchcancel", cancelarToqueLongo);
+    }
+
+    if (map) map.on("contextmenu", (e) => {
+      if (modoLeitura) return;
+      contextLatLng = e.latlng;
+      contextPinId = null;
+      document.getElementById("createPinOpt").style.display = loggedIn ? "block" : "none";
+      document.getElementById("editPinOpt").style.display = "none";
+      document.getElementById("deletePinOpt").style.display = "none";
+      if (!loggedIn) return;
+      showMenu(e.containerPoint.x, e.containerPoint.y);
+    });
+
+    if (map) map.on("click", (e) => {
+      if (toqueLongoDisparou) { toqueLongoDisparou = false; return; }
+      hideMenu();
+      if (modoPosicionamento) { contextLatLng = e.latlng; contextPinId = null; sairModoPosicionamento(); openEditor(null); }
+    });
+
+    const menu = document.getElementById("menu");
+    function showMenu(x, y) { menu.style.left = x + "px"; menu.style.top = y + "px"; menu.style.display = "block"; }
+    function hideMenu() { menu.style.display = "none"; }
+    document.getElementById("createPinOpt").onclick = () => { hideMenu(); openEditor(null); };
+    document.getElementById("editPinOpt").onclick = () => { hideMenu(); openEditor(contextPinId); };
+    document.getElementById("deletePinOpt").onclick = async () => {
+      hideMenu();
+      if (contextPinId === null) return;
+      if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
+      try {
+        const resp = await fetch(`${API_BASE}/pins/${contextPinId}`, { method: "DELETE", headers: headersAutenticados() });
+        const dados = await resp.json();
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro"); return; }
+        carregarPins();
+        mostrarToast("Pin excluído com sucesso.", "sucesso");
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o servidor.", "erro"); }
+    };
+
+    const editorOverlay = document.getElementById("editorOverlay");
+    async function openEditor(pinId) {
+      editingPinId = pinId;
+      const tituloInput = document.getElementById("edTitulo");
+      const dataInput = document.getElementById("edData");
+      const conteudoInput = document.getElementById("edConteudo");
+      const excluirBtn = document.getElementById("btnExcluirEditor");
+      const titleBar = document.getElementById("editorTitleBar");
+
+      if (pinId === null) {
+        titleBar.textContent = "Novo artigo";
+        tituloInput.value = "";
+        dataInput.value = new Date().toISOString().split("T")[0];
+        conteudoInput.value = "";
+        excluirBtn.style.display = "none";
+        atualizarPreview();
+        editorOverlay.style.display = "flex";
+      } else {
+        try {
+          const resp = await fetch(`${API_BASE}/pins/${pinId}`);
+          if (!resp.ok) throw new Error("Pin não encontrado");
+          const pin = await resp.json();
+          titleBar.textContent = "Editar artigo";
+          tituloInput.value = pin.titulo;
+          dataInput.value = pin.data;
+          conteudoInput.value = pin.texto;
+          excluirBtn.style.display = "block";
+          atualizarPreview();
+          editorOverlay.style.display = "flex";
+        } catch (erro) { console.error(erro); mostrarToast("Não foi possível carregar o pin para edição.", "erro"); }
+      }
+    }
+
+    function closeEditor() { editorOverlay.style.display = "none"; editingPinId = null; }
+
+    function atualizarPreview() {
+      const titulo = document.getElementById("edTitulo").value;
+      const dataRaw = document.getElementById("edData").value;
+      const texto = document.getElementById("edConteudo").value;
+      document.getElementById("edPreview").innerHTML = `<h2>${escaparHtml(titulo) || "(sem título)"}</h2><small>${formatarData(dataRaw)}</small><p style="margin-top:15px;">${parseConteudo(texto)}</p>`;
+    }
+
+    ["edTitulo", "edData", "edConteudo"].forEach(id => { document.getElementById(id).addEventListener("input", atualizarPreview); });
+
+    async function salvarPin() {
+      const titulo = document.getElementById("edTitulo").value.trim();
+      const data = document.getElementById("edData").value;
+      const texto = document.getElementById("edConteudo").value.trim();
+
+      if (!titulo || !data || !texto) { mostrarToast("Preencha título, data e conteúdo.", "erro"); return; }
+      try {
+        let resp;
+        if (editingPinId === null) {
+          if (!contextLatLng) { mostrarToast("Coordenada não capturada.", "erro"); return; }
+          const novoPin = { titulo, data, texto, latitude: contextLatLng.lat, longitude: contextLatLng.lng };
+          if (modoColecao && colecaoAtual) novoPin.colecao = colecaoAtual;
+          resp = await fetch(`${API_BASE}/pins`, { method: "POST", headers: headersAutenticados(), body: JSON.stringify(novoPin) });
+        } else {
+          resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "PUT", headers: headersAutenticados(), body: JSON.stringify({ titulo, data, texto }) });
+        }
+        const dados = await resp.json();
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível salvar o pin.", "erro"); return; }
+        const eraNovo = editingPinId === null;
+        closeEditor();
+        carregarPins();
+        mostrarToast(eraNovo ? "Pin criado com sucesso." : "Pin atualizado com sucesso.", "sucesso");
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o servidor.", "erro"); }
+    }
+
+    async function excluirPinAtual() {
+      if (editingPinId === null) return;
+      if (!(await pedirConfirmacao("Deseja realmente excluir este PIN?"))) return;
+      try {
+        const resp = await fetch(`${API_BASE}/pins/${editingPinId}`, { method: "DELETE", headers: headersAutenticados() });
+        const dados = await resp.json();
+        if (resp.status === 401) { sessaoExpirada(); return; }
+        if (!resp.ok) { mostrarToast(dados.erro || "Não foi possível excluir o pin.", "erro"); return; }
+        closeEditor();
+        carregarPins();
+        mostrarToast("Pin excluído com sucesso.", "sucesso");
+      } catch (erro) { console.error(erro); mostrarToast("Erro de conexão com o servidor.", "erro"); }
+    }
+
+    const viewerOverlay = document.getElementById("viewerOverlay");
+    let viewingPinId = null;
+
+    async function openViewer(pinId) {
+      try {
+        const resp = await fetch(`${API_BASE}/pins/${pinId}`);
+        if (!resp.ok) throw new Error("Pin não encontrado");
+        const pin = await resp.json();
+        viewingPinId = pin.id;
+        document.getElementById("viewerBody").innerHTML = `<h2 style="color:#186da5;">${escaparHtml(pin.titulo)}</h2><small>${formatarData(pin.data)}</small>${pin.autor_nome ? `<div class="autor-artigo">registrado por <b>${escaparHtml(pin.autor_nome)}</b></div>` : ""}<div style="margin-top:15px;">${parseConteudo(pin.texto)}</div>`;
+        const podeEditar = !modoLeitura && loggedIn && usuarioAtual && String(usuarioAtual.id) === String(pin.autor_id);
+        document.getElementById("btnEditarViewer").style.display = podeEditar ? "inline-block" : "none";
+        viewerOverlay.style.display = "flex";
+      } catch (erro) { console.error(erro); mostrarToast("Não foi possível carregar o artigo.", "erro"); }
+    }
+
+    function closeViewer() { viewerOverlay.style.display = "none"; viewingPinId = null; }
+    function editarPinDoViewer() { const pinId = viewingPinId; closeViewer(); if (pinId !== null) openEditor(pinId); }
+
+    function toggleAuth() {
+      if (loggedIn) { limparSessao(); verificarModoLeitura(); carregarPins(); mostrarToast("Sessão encerrada.", "sucesso"); }
+      else { openLogin(); }
+    }
+
+    function hideAllScreens() { document.getElementById("loginScreen").style.display = "none"; document.getElementById("registerScreen").style.display = "none"; }
+    function openLogin() { hideAllScreens(); document.getElementById("loginError").style.display = "none"; document.getElementById("loginScreen").style.display = "flex"; }
+    function openRegister() { hideAllScreens(); document.getElementById("regError").style.display = "none"; document.getElementById("registerScreen").style.display = "flex"; }
+    function voltarAoMapa() { hideAllScreens(); }
+
+    document.addEventListener("keydown", (evento) => {
+      if (evento.key !== "Escape") return;
+      if (modoPosicionamento) { sairModoPosicionamento(); return; }
+      const telasAbertas = ["loginScreen", "registerScreen"].filter((id) => document.getElementById(id).style.display === "flex");
+      if (telasAbertas.length > 0) voltarAoMapa();
+    });
+
+    async function fazerLogin() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const senha = document.getElementById("loginSenha").value;
+      const erroBox = document.getElementById("loginError");
+      if (!email || !senha) { erroBox.textContent = "Preencha e-mail e senha."; erroBox.style.display = "block"; return; }
+      try {
+        const resp = await fetch(`${API_BASE}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, senha }), });
+        const dados = await resp.json();
+        if (!resp.ok) { erroBox.textContent = dados.erro || "E-mail ou senha incorretos."; erroBox.style.display = "block"; return; }
+        token = dados.token; usuarioAtual = dados.usuario; loggedIn = true;
+        salvarSessao(); atualizarBarraUsuario(); verificarModoLeitura(); hideAllScreens(); carregarPins();
+        mostrarToast(`Login realizado com sucesso. Bem-vindo(a), ${usuarioAtual.nome}!`, "sucesso");
+      } catch (erro) { console.error(erro); erroBox.textContent = "Erro de conexão com o servidor."; erroBox.style.display = "block"; }
+    }
+
+    async function fazerCadastro() {
+      const nome = document.getElementById("regNome").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const senha = document.getElementById("regSenha").value;
+      const confirmarSenha = document.getElementById("regConfirma").value;
+      const erroBox = document.getElementById("regError");
+      if (!nome || !email || !senha || !confirmarSenha) { erroBox.textContent = "Preencha todos os campos."; erroBox.style.display = "block"; return; }
+      if (senha !== confirmarSenha) { erroBox.textContent = "As senhas não coincidem."; erroBox.style.display = "block"; return; }
+      try {
+        const resp = await fetch(`${API_BASE}/usuarios`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome, email, senha, confirmarSenha }), });
+        const dados = await resp.json();
+        if (!resp.ok) { erroBox.textContent = dados.erro || "Não foi possível cadastrar."; erroBox.style.display = "block"; return; }
+        mostrarToast("Conta criada com sucesso! Faça login para continuar.", "sucesso"); openLogin();
+      } catch (erro) { console.error(erro); erroBox.textContent = "Erro de conexão com o servidor."; erroBox.style.display = "block"; }
+    }
+
+    document.getElementById("dataInicial").addEventListener("change", carregarPins);
+    document.getElementById("dataFinal").addEventListener("change", carregarPins);
+    // Datas anteriores ao piso da coleção são corrigidas só quando o campo perde o foco,
+    // para não atrapalhar a digitação do ano (que passa por 0001, 0019, 0194...).
+    ["dataInicial", "dataFinal"].forEach((id) => {
+      const campo = document.getElementById(id);
+      campo.addEventListener("blur", () => {
+        const piso = "1500-04-22";
+        if (modoColecao && colecaoAtual === "brasil" && campo.value && campo.value < piso) {
+          campo.value = piso;
+          mostrarToast("A coleção Brasil não aceita datas anteriores a 22/04/1500.", "erro");
+          carregarPins();
+        }
+      });
+    });
+    function limparFiltro() { document.getElementById("dataInicial").value = ""; document.getElementById("dataFinal").value = ""; carregarPins(); }
+
+    restaurarSessao();
+    verificarModoLeitura();
+    if (map) carregarPins();
+  </script>
+</body>
+</html>
