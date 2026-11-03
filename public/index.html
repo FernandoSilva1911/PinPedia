@@ -426,7 +426,18 @@
     async function carregarPinsDaColecao() {
       const piso = colecaoAtual === "brasil" ? "1500-04-22" : "";
       const campoDataInicial = document.getElementById("dataInicial");
-      if (piso && !campoDataInicial.value) campoDataInicial.value = piso;
+      const campoDataFinal = document.getElementById("dataFinal");
+      if (piso) {
+        // só impede datas anteriores ao piso; não preenche nem sobrescreve o que o usuário digita
+        campoDataInicial.min = piso;
+        campoDataFinal.min = piso;
+        for (const campo of [campoDataInicial, campoDataFinal]) {
+          if (campo.value && campo.value < piso) {
+            campo.value = piso;
+            mostrarToast("A coleção Brasil não aceita datas anteriores a 22/04/1500.", "erro");
+          }
+        }
+      }
 
       const params = parametrosDoFiltro();
 
