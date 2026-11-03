@@ -393,12 +393,16 @@
 
     function sairModoLeitura() { window.location.href = "/"; }
 
+    function esValidaISO(str) {
+      return /^\d{4}-\d{2}-\d{2}$/.test(str);
+    }
+
     function parametrosDoFiltro() {
       const params = new URLSearchParams();
       const inicio = document.getElementById("dataInicial").value;
       const fim = document.getElementById("dataFinal").value;
-      if (inicio) params.append("dataInicial", inicio);
-      if (fim) params.append("dataFinal", fim);
+      if (inicio && esValidaISO(inicio)) params.append("dataInicial", inicio);
+      if (fim && esValidaISO(fim)) params.append("dataFinal", fim);
       return params;
     }
 
@@ -424,14 +428,6 @@
     }
 
     async function carregarPinsDaColecao() {
-      const piso = colecaoAtual === "brasil" ? "1500-04-22" : "";
-      const campoDataInicial = document.getElementById("dataInicial");
-      if (piso) {
-        // só define o mínimo do calendário; o valor digitado nunca é alterado aqui
-        campoDataInicial.min = piso;
-        document.getElementById("dataFinal").min = piso;
-      }
-
       const params = parametrosDoFiltro();
 
       try {
@@ -453,11 +449,6 @@
         const dados = await resp.json();
         if (!dados) throw new Error("Resposta da API está vazia");
         pins = dados.pins || [];
-
-        if (dados.colecao && dados.colecao.dataMinima) {
-          document.getElementById("dataInicial").min = dados.colecao.dataMinima;
-          document.getElementById("dataFinal").min = dados.colecao.dataMinima;
-        }
 
         const donoId = dados.colecao ? dados.colecao.donoId : null;
         const souDono = loggedIn && usuarioAtual && donoId != null && String(usuarioAtual.id) === String(donoId);
@@ -797,21 +788,16 @@
       } catch (erro) { console.error(erro); erroBox.textContent = "Erro de conexão com o servidor."; erroBox.style.display = "block"; }
     }
 
-    document.getElementById("dataInicial").addEventListener("change", carregarPins);
-    document.getElementById("dataFinal").addEventListener("change", carregarPins);
-    // Datas anteriores ao piso da coleção são corrigidas só quando o campo perde o foco,
-    // para não atrapalhar a digitação do ano (que passa por 0001, 0019, 0194...).
+    // Apenas recarrega quando o usuario termina a selecao/digitacao valida
     ["dataInicial", "dataFinal"].forEach((id) => {
       const campo = document.getElementById(id);
-      campo.addEventListener("blur", () => {
-        const piso = "1500-04-22";
-        if (modoColecao && colecaoAtual === "brasil" && campo.value && campo.value < piso) {
-          campo.value = piso;
-          mostrarToast("A coleção Brasil não aceita datas anteriores a 22/04/1500.", "erro");
+      campo.addEventListener("change", () => {
+        if (!campo.value || esValidaISO(campo.value)) {
           carregarPins();
         }
       });
     });
+
     function limparFiltro() { document.getElementById("dataInicial").value = ""; document.getElementById("dataFinal").value = ""; carregarPins(); }
 
     restaurarSessao();
